@@ -1,0 +1,114 @@
+( yum install -y docker unzip ipset
+systemctl enable docker
+systemctl restart docker
+docker pull nginx:alpine &
+curl https://downloads.dcos.io/binaries/cli/linux/x86-64/dcos-1.13/dcos -o /usr/bin/dcos &
+mkdir /root/dcos/genconf
+cat <<\EOF >/root/dcos/genconf/ip-detect
+#!/bin/sh
+set -o nounset -o errexit
+
+# Get COREOS COREOS_PRIVATE_IPV4
+if [ -e /etc/environment ]
+then
+  set -o allexport
+  source /etc/environment
+  set +o allexport
+fi
+
+get_private_ip_from_metaserver()
+{
+    curl -fsSL http://169.254.169.254/latest/meta-data/local-ipv4
+}
+
+echo ${COREOS_PRIVATE_IPV4:-$(get_private_ip_from_metaserver)}
+EOF
+cat <<EOF >/root/dcos/genconf/config.yaml
+bootstrap_url: http://192.168.99.1${c}9
+cluster_name: dcos_test
+exhibitor_storage_backend: static
+master_discovery: static
+master_list:
+- 192.168.99.1${c}0
+resolvers:
+- 8.8.8.8
+- 8.8.4.4
+dns_search: None
+superuser_username: admin
+superuser_password_hash: $6$rounds=656000$8CXbMqwuglDt3Yai$ZkLEj8zS.GmPGWt.dhwAv0.XsjYXwVHuS9aHh3DMcfGaz45OpGxC5oQPXUUpFLMkqlXCfhXMloIzE0Xh8VwHJ.
+license_key_contents: $dcos_license
+security: permissive
+fault_domain_enabled: false
+EOF
+cat <<EOF >/root/config-px.json
+{
+  "service": {
+    "name": "portworx",
+    "user": "root",
+    "principal": "",
+    "pre_reserved_role": "",
+    "secret_name": "",
+    "mesos_api_version": "V1",
+    "task_failure_timeout_minutes": 5
+  },
+  "node": {
+    "portworx_cluster": "portworx-dcos",
+    "portworx_image": "portworx/px-enterprise:$version",
+    "portworx_port_range_start": 9001,
+    "portworx_options": "-a -x mesos",
+    "internal_kvdb": false,
+    "kvdb_servers": "",
+    "container_parameters": "",
+    "count": 3,
+    "placement_constraint": "hostname:UNIQUE"
+  },
+  "secrets": {
+    "enabled": false,
+    "base_path": "",
+    "dcos_username_secret": "portworx/dcos_username",
+    "dcos_password_secret": "portworx/dcos_password"
+  },
+  "etcd": {
+    "enabled": true,
+    "proxy_enabled": false,
+    "placement_constraint": "hostname:UNIQUE",
+    "image": "mesosphere/etcd-mesos:latest",
+    "cpus": 0.3,
+    "mem": 1024,
+    "disk_type": "ROOT",
+    "disk_size": 5120,
+    "node_advertise_port": 1026,
+    "node_peer_port": 1027,
+    "proxy_advertise_port": 2379
+  },
+  "lighthouse": {
+    "enabled": false,
+    "placement_constraint": "",
+    "public_agent": true,
+    "cpus": 0.3,
+    "mem": 1024,
+    "image": "portworx/px-lighthouse:2.0.1",
+    "webui_port": 8085,
+    "company_name": "Portworx",
+    "admin_username": "admin"
+  }
+}
+EOF
+cd /root/dcos
+curl -Os https://downloads.mesosphere.com/dcos-enterprise/stable/dcos_generate_config.ee.sh
+bash dcos_generate_config.ee.sh
+wait
+docker run -d -p 80:80 -v /root/dcos/genconf/serve:/usr/share/nginx/html:ro nginx:alpine
+chmod 755 /usr/bin/dcos
+while : ; do
+  dcos cluster setup http://192.168.99.1${c}0 --username admin --password admin
+  [ $? -eq 0 ] && break
+  sleep 5
+done
+while : ; do
+  dcos package install --options=/root/config-px.json portworx --yes
+  [ $? -eq 0 ] && break
+  sleep 5
+done
+echo End
+) &>/var/log/vagrant.bootstrap &

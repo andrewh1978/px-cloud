@@ -1,0 +1,12 @@
+GCP:
+vagrant plugin install vagrant-google
+install and configure Google Cloud SDK
+ensure billing enabled
+gcloud alpha
+Create user and key JSON file
+gcp-create-project
+Log into console, select project, APIs and Services, Credentials, Create Credentials, Service account key, JSON, save the file
+
+TODO:
+fix ip-detect on gcp
+bump lighthouse version on dcos

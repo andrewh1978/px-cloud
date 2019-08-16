@@ -1,0 +1,12 @@
+( yum install -y docker unzip ipset
+systemctl enable docker
+systemctl restart docker
+cd /root/dcos
+while : ; do
+  curl -O http://192.168.99.1${c}9/dcos_install.sh
+  [ $? -eq 0 ] && break
+  sleep 1
+done
+bash dcos_install.sh slave
+echo End
+) &>/var/log/vagrant.bootstrap &

@@ -1,0 +1,60 @@
+( yum install -y docker git epel-release NetworkManager
+yum install -y python-pip
+pip install ansible==2.7.6
+systemctl enable docker NetworkManager
+systemctl start docker NetworkManager
+cd /root
+htpasswd='$apr1$zTCG/myL$mj1ZMOSkYg7a9NLZK9Tk9.'
+cat <<EOF >/root/inventory
+[OSEv3:children]
+masters
+etcd
+nodes
+[OSEv3:vars]
+ansible_ssh_user=root
+ansible_sudo=false
+ansible_become=false
+deployment_type=origin
+os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
+openshift_install_examples=true
+openshift_docker_options='--selinux-enabled --insecure-registry 172.30.0.0/16'
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+openshift_master_htpasswd_users={'admin' : '$htpasswd'}
+openshift_master_default_subdomain=apps.192.168.99.1${c}0
+openshift_master_cluster_public_hostname=192.168.99.1${c}0
+openshift_master_cluster_hostname=192.168.99.1${c}0
+openshift_disable_check=disk_availability,docker_storage,memory_availability
+openshift_hosted_router_selector='node-role.kubernetes.io/infra=true'
+openshift_enable_service_catalog=false
+[masters]
+master-$c
+[etcd]
+master-$c
+[nodes]
+master-$c openshift_node_group_name='node-config-master-infra' openshift_schedulable=true
+EOF
+for n in $(seq 1 $nodes); do
+  echo "node-$c-$n openshift_node_group_name='node-config-compute'" >>/root/inventory
+done
+git clone https://github.com/openshift/openshift-ansible
+cd openshift-ansible
+git checkout release-3.11
+ansible-playbook playbooks/prerequisites.yml -i /root/inventory
+ansible-playbook playbooks/deploy_cluster.yml -i /root/inventory
+kubectl apply -f "https://install.portworx.com/$version?kbver=$(kubectl version --short | awk -Fv '/Server Version: / {print $3}')&b=true&c=$cluster_name&osft=true&stork=true&lh=true&st=k8s"
+if [ $training = false ]; then
+  kubectl apply -f /tmp/px.yml
+  curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/2.0.0/linux/storkctl -o /usr/bin/storkctl
+  chmod +x /usr/bin/storkctl
+  if [ $(hostname) != master-1 ]; then
+    while : ; do
+      token=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no node-$c-1 pxctl cluster token show | cut -f 3 -d " ")
+      echo $token | grep -Eq '.{128}'
+      [ $? -eq 0 ] && break
+      sleep 5
+    done
+    storkctl generate clusterpair -n default remotecluster-$c | sed "/insert_storage_options_here/c\    ip: node-$c-1\n    token: $token" >/root/cp.yaml
+    cat /root/cp.yaml | ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no master-1 kubectl apply -f -
+  fi
+fi
+echo End) >&/var/log/vagrant.bootstrap &

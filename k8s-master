@@ -1,0 +1,25 @@
+( yum install -y kubeadm docker
+systemctl enable docker kubelet
+systemctl restart docker kubelet
+kubeadm config images list | xargs -n1 -P0 docker pull
+kubeadm init --apiserver-advertise-address=192.168.99.1${c}0 --pod-network-cidr=10.244.0.0/16
+mkdir /root/.kube
+cp /etc/kubernetes/admin.conf /root/.kube/config
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+curl -so /tmp/px.yml "https://install.portworx.com/$version?kbver=$(kubectl version --short | awk -Fv '/Server Version: / {print $3}')&b=true&c=$cluster_name-$c&stork=true&st=k8s&lh=true"
+if [ $training = false ]; then
+  kubectl apply -f /tmp/px.yml
+  curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/2.0.0/linux/storkctl -o /usr/bin/storkctl
+  chmod +x /usr/bin/storkctl
+  if [ $(hostname) != master-1 ]; then
+    while : ; do
+      token=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no node-$c-1 pxctl cluster token show | cut -f 3 -d " ")
+      echo $token | grep -Eq '.{128}'
+      [ $? -eq 0 ] && break
+      sleep 5
+    done
+    storkctl generate clusterpair -n default remotecluster-$c | sed "/insert_storage_options_here/c\    ip: node-$c-1\n    token: $token" >/root/cp.yaml
+    cat /root/cp.yaml | ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no master-1 kubectl apply -f -
+  fi
+fi
+echo End) >&/var/log/vagrant.bootstrap &

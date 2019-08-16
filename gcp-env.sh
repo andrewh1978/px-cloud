@@ -1,0 +1,3 @@
+PROJECT=pxtest-12345
+
+export PROJECT

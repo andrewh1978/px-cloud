@@ -1,0 +1,13 @@
+( yum install -y kubeadm docker
+systemctl enable docker kubelet
+systemctl restart docker kubelet
+kubeadm config images list | xargs -n1 -P0 docker pull &
+curl -s "https://install.portworx.com/$version?kbver=$(kubectl version --short | awk -Fv '/Server Version: / {print $3}')&b=true&c=$cluster_name-$c&stork=true&st=k8s&lh=false" | awk '/image: /{print $2} /oci-monitor/{sub(/oci-monitor/,"px-enterprise",$2);print$2}' | sort -u | xargs -n1 -P0 docker pull &
+while : ; do
+  command=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no $hostname_master kubeadm token create --print-join-command)
+  [ $? -eq 0 ] && break
+  sleep 5
+done
+wait
+eval $command
+echo End ) >&/var/log/vagrant.bootstrap &

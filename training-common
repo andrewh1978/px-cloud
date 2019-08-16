@@ -1,0 +1,9 @@
+( yum install -y git epel-release
+yum install -y shellinabox
+rm -f /etc/securetty
+passwd --stdin root <<<portworx
+sed -i s/4200/443/ /etc/sysconfig/shellinaboxd
+systemctl enable shellinaboxd
+systemctl restart shellinaboxd sshd
+cd /root
+git clone https://github.com/portworx/pwx-fundamentals-training.git ) >&/var/log/vagrant.training &

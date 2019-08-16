@@ -1,0 +1,51 @@
+( yum install -y docker
+nomad_version=0.9.4
+curl -sSL https://releases.hashicorp.com/nomad/$nomad_version/nomad_${nomad_version}_linux_amd64.zip | gunzip >/usr/bin/nomad
+chmod 755 /usr/bin/nomad
+nomad -autocomplete-install
+cat <<EOF >/etc/nomad.d/client.hcl
+datacenter = "dc$c"
+data_dir   = "/etc/nomad.d"
+bind_addr  = "$(hostname -i)"
+
+client {
+  enabled = true
+  servers = ["192.168.99.1${c}0:4647"]
+}
+
+consul {
+  address = "192.168.99.1${c}0:8500"
+}
+EOF
+cat <<EOF >/etc/systemd/system/nomad.service
+# Consul systemd service unit file
+[Unit]
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/bin/nomad agent -config=/etc/nomad.d/client.hcl
+
+ExecReload=/bin/kill -HUP \$MAINPID
+KillSignal=SIGINT
+TimeoutStopSec=5
+Restart=on-failure
+SyslogIdentifier=consul
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl enable nomad docker
+systemctl start nomad docker
+echo "export NOMAD_ADDR=http://$hostname_master:4646" >>/root/.bashrc
+latest_stable=$(curl -fsSL "https://install.portworx.com/$version/?type=dock&stork=false" | awk '/image: / {print $2}')
+docker run --entrypoint /runc-entry-point.sh --rm -i --privileged=true -v /opt/pwx:/opt/pwx -v /etc/pwx:/etc/pwx $latest_stable
+/opt/pwx/bin/px-runc install -c $cluster_name -k consul://$hostname_master:8500 -a
+systemctl daemon-reload
+systemctl enable portworx
+systemctl start portworx
+echo End
+) &>/var/log/vagrant.bootstrap &

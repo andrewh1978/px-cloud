@@ -1,0 +1,16 @@
+if [ -f /etc/selinux/config ]; then
+  setenforce 0
+  sed -i s/SELINUX=enforcing/SELINUX=disabled/g /etc/selinux/config
+fi
+swapoff -a
+mkdir -p /root/.ssh
+sed -i /swap/d /etc/fstab
+cp /vagrant/hosts /etc
+cp /vagrant/id_rsa /root/.ssh
+cp /vagrant/id_rsa.pub /root/.ssh/authorized_keys
+cp /vagrant/sshd_config /etc/ssh/sshd_config
+chmod 600 /root/.ssh/id_rsa
+hostnamectl set-hostname $(getent hosts $(hostname -I) | awk '{print$2}')
+systemctl stop firewalld 2>/dev/null
+systemctl disable firewall 2>/dev/null
+systemctl restart sshd

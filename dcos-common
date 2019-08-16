@@ -1,0 +1,3 @@
+groupadd nogroup
+groupadd docker
+mkdir /root/dcos
