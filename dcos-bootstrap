@@ -1,8 +1,9 @@
-( yum install -y docker unzip ipset
+( curl -s https://downloads.mesosphere.com/dcos-enterprise/stable/dcos_generate_config.ee.sh -o /root/dcos/dcos_generate_config.ee.sh &
+curl -s https://downloads.dcos.io/binaries/cli/linux/x86-64/dcos-1.13/dcos -o /usr/bin/dcos &
+yum install -y docker unzip ipset
 systemctl enable docker
 systemctl restart docker
 docker pull nginx:alpine &
-curl https://downloads.dcos.io/binaries/cli/linux/x86-64/dcos-1.13/dcos -o /usr/bin/dcos &
 mkdir /root/dcos/genconf
 cat <<EOF >/root/dcos/genconf/ip-detect
 #!/bin/sh
@@ -81,11 +82,12 @@ cat <<EOF >/root/config-px.json
   }
 }
 EOF
+wait %1
 cd /root/dcos
-curl -Os https://downloads.mesosphere.com/dcos-enterprise/stable/dcos_generate_config.ee.sh
 bash dcos_generate_config.ee.sh
-wait
+wait %3
 docker run -d -p 80:80 -v /root/dcos/genconf/serve:/usr/share/nginx/html:ro nginx:alpine
+wait %2
 chmod 755 /usr/bin/dcos
 while : ; do
   dcos cluster setup http://192.168.99.1${c}0 --username admin --password admin
