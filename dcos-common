@@ -1,3 +1,7 @@
 groupadd nogroup
 groupadd docker
 mkdir /root/dcos
+for i in $(seq 1 $clusters); do
+  echo 192.168.99.1${i}9 bootstrap-$i >>/etc/hosts
+done
+hostnamectl set-hostname $(getent hosts $(hostname -I) | awk '{print$2}')

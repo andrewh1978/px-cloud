@@ -37,16 +37,6 @@ if !File.exist?("id_rsa") or !File.exist?("id_rsa.pub")
     abort("Please create SSH keys before running vagrant up.")
 end
 
-open("hosts", "w") do |f|
-  f << "127.0.0.1 localhost\n"
-  (1..clusters).each do |c|
-    f << "192.168.99.1#{c}0 master-#{c}\n"
-    (1..nodes).each do |n|
-      f << "192.168.99.1#{c}#{n} node-#{c}-#{n}\n"
-    end
-  end
-end
-
 Vagrant.configure("2") do |config|
 
   config.vm.synced_folder ".", "/vagrant", type: "rsync"
@@ -82,7 +72,9 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.provision "shell", path: "all-common"
+  env = { :cluster_name => cluster_name, :version => version, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license }
+
+  config.vm.provision "shell", path: "all-common", env: env
 
   if platform == "k8s"
     config.vm.provision "shell", path: "k8s-common"
@@ -94,7 +86,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", path: "openshift-common"
 
   elsif platform == "dcos"
-    config.vm.provision "shell", path: "dcos-common"
+    config.vm.provision "shell", path: "dcos-common", env: env
   end
 
   if training
@@ -104,12 +96,9 @@ Vagrant.configure("2") do |config|
   (1..clusters).each do |c|
     hostname_master = "master-#{c}"
     config.vm.hostname = "#{hostname_master}"
-    env = { :cluster_name => cluster_name, :c => c, :version => version, :hostname_master => hostname_master, :training => training, :nodes => nodes, :dcos_license => dcos_license }
+    env = env.merge({ :c => c, :hostname_master => hostname_master })
 
     if platform == "dcos"
-      open("hosts", "a") do |f|
-        f << "192.168.99.1#{c}9 bootstrap-#{c}\n"
-      end
       config.vm.define "bootstrap-#{c}" do |bootstrap|
         bootstrap.vm.hostname = "bootstrap-#{c}"
         if cloud == "aws"

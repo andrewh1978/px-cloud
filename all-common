@@ -3,9 +3,15 @@ if [ -f /etc/selinux/config ]; then
   sed -i s/SELINUX=enforcing/SELINUX=disabled/g /etc/selinux/config
 fi
 swapoff -a
+echo 127.0.0.1 localhost >/etc/hosts
+for i in $(seq 1 $clusters); do
+  echo 192.168.99.1${i}0 master-$i >>/etc/hosts
+  for j in $(seq 1 $nodes); do
+    echo 192.168.99.1$i$j node-$i-$j >>/etc/hosts
+  done
+done
 mkdir -p /root/.ssh
 sed -i /swap/d /etc/fstab
-cp /vagrant/hosts /etc
 cp /vagrant/id_rsa /root/.ssh
 cp /vagrant/id_rsa.pub /root/.ssh/authorized_keys
 cp /vagrant/sshd_config /etc/ssh/sshd_config
