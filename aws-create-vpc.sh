@@ -20,9 +20,12 @@ aws ec2 authorize-security-group-ingress --group-id $sg --protocol all --cidr 19
 ami=$(aws --output json ec2 describe-images --owners 679593333241 --filters Name=name,Values='CentOS Linux 7 x86_64 HVM EBS*' Name=architecture,Values=x86_64 Name=root-device-type,Values=ebs --query 'sort_by(Images, &Name)[-1].ImageId' --output text)
 
 cat <<EOF >aws-env.sh
+vpc=$vpc
 subnet=$subnet
+gw=$gw
+routetable=$routetable
 sg=$sg
 ami=$ami
 AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
-export subnet sg ami AWS_DEFAULT_REGION
+export vpc subnet gw routetable sg ami AWS_DEFAULT_REGION
 EOF
