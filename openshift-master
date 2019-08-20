@@ -1,6 +1,6 @@
 ( yum install -y docker git epel-release NetworkManager
 yum install -y python-pip
-pip install ansible==2.7.6
+pip install ansible
 systemctl enable docker NetworkManager
 systemctl start docker NetworkManager
 cd /root
@@ -41,15 +41,15 @@ cd openshift-ansible
 git checkout release-3.11
 ansible-playbook playbooks/prerequisites.yml -i /root/inventory
 ansible-playbook playbooks/deploy_cluster.yml -i /root/inventory
-kubectl apply -f "https://install.portworx.com/$version?kbver=$(kubectl version --short | awk -Fv '/Server Version: / {print $3}')&b=true&c=$cluster_name&osft=true&stork=true&lh=true&st=k8s"
+curl -so /tmp/px.yml "https://install.portworx.com/$version?kbver=$(kubectl version --short | awk -Fv '/Server Version: / {print $3}')&b=true&c=$cluster_name-$c&osft=true&stork=true&lh=true&st=k8s"
 if [ $training = false ]; then
   kubectl apply -f /tmp/px.yml
-  curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/2.0.0/linux/storkctl -o /usr/bin/storkctl
+  curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/latest/linux/storkctl -o /usr/bin/storkctl
   chmod +x /usr/bin/storkctl
   if [ $(hostname) != master-1 ]; then
     while : ; do
       token=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no node-$c-1 pxctl cluster token show | cut -f 3 -d " ")
-      echo $token | grep -Eq '.{128}'
+      echo $token | grep -Eq '\w{128}'
       [ $? -eq 0 ] && break
       sleep 5
     done
