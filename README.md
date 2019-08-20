@@ -81,6 +81,17 @@ There are also some cloud-specific variables below this section that may need to
 $ vagrant up
 ```
 
+12. Destroy the cluster(s):
+```
+$ vagrant destroy -fp
+```
+
+13. Destroy cloud-specific VPC/project:
+```
+$ sh aws-delete-vpc.sh
+$ sh gcp-delete-project.sh
+```
+
 # Notes:
  * The DC/OS UI username and password are `admin`/`admin`.
  * The `status.sh` script will output a list of master nodes and IP addresses, useful for training sessions:
