@@ -10,8 +10,8 @@ training = false
 # Set cloud to one of "aws", "gcp"
 cloud = "aws"
 
-# Set platform to one of "kubernetes", "openshift", "swarm", "rancher", "nomad", "dcos"
-platform = "kubernetes"
+# Set platform to one of "k8s", "openshift", "swarm", "rancher", "nomad", "dcos"
+platform = "k8s"
 
 # Set DCOS license
 dcos_license="***"
