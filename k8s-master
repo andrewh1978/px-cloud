@@ -9,12 +9,12 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 curl -so /tmp/px.yml "https://install.portworx.com/$version?kbver=$(kubectl version --short | awk -Fv '/Server Version: / {print $3}')&b=true&c=$cluster_name-$c&stork=true&st=k8s&lh=true"
 if [ $training = false ]; then
   kubectl apply -f /tmp/px.yml
-  curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/2.0.0/linux/storkctl -o /usr/bin/storkctl
+  curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/latest/linux/storkctl -o /usr/bin/storkctl
   chmod +x /usr/bin/storkctl
   if [ $(hostname) != master-1 ]; then
     while : ; do
       token=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no node-$c-1 pxctl cluster token show | cut -f 3 -d " ")
-      echo $token | grep -Eq '.{128}'
+      echo $token | grep -Eq '\w{128}'
       [ $? -eq 0 ] && break
       sleep 5
     done
