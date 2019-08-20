@@ -83,3 +83,10 @@ $ vagrant up
 
 # Notes:
  * The DC/OS UI username and password are `admin`/`admin`.
+ * The `status.sh` script will output a list of master nodes and IP addresses, useful for training sessions:
+```# sh status.sh
+master-1 34.245.47.251
+master-2 34.252.74.216
+master-3 34.245.11.144
+...
+```
