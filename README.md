@@ -30,6 +30,7 @@ Cloud:
 4. Install the Vagrant plugin for your choice of cloud provider:
  * AWS: `vagrant plugin install vagrant-aws`
  * GCP: `vagrant plugin install vagrant-google`
+
 Note: For AWS, also need to install a dummy box: `vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box`
 
 5. Clone this repo and cd to it.
@@ -41,6 +42,7 @@ Note: For AWS, also need to install a dummy box: `vagrant box add dummy https://
 7. Create cloud-specific VPC/project:
  * AWS: `sh aws-create-vpc.sh`
  * GCP: `sh gcp-create-project.sh`
+
 Notes for GCP:
  * Billing needs to be enabled: `gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha billing accounts list | tail -1 | cut -f 1 -d " ")`
  * Create JSON service account key: On GCP console, select the Project, click APIs and Services, Credentials, Create Credentials, Service account key, Create. Save the file.
@@ -57,11 +59,11 @@ Notes for GCP:
 10. Edit `Vagrantfile`.
  * `clusters`: number of clusters
  * `nodes`: number of nodes per cluster
- * `disk_size`: size of storage disk in GB
- * `cluster_name`: name of cluster (except in Kubernetes and Openshift, where it will be $clustername-$n, where $n is the cluster number)
+ * `disk_size`: size of storage disk in GB
+ * `cluster_name`: name of cluster (except in Kubernetes and Openshift, where it will be `$clustername-$n`, where `$n` is the cluster number)
  * `version`: Portworx version
-   * in Kubernetes and Openshift, this should be the major version for the spec generator, eg 2.0, 2.1
-   * otherwise it should be the name as the Docker tag, eg 2.1.3
+   * in Kubernetes and Openshift, this should be the major version for the spec generator, eg `2.0`, `2.1`
+   * otherwise it should be the name as the Docker tag, eg `2.1.3`
  * `training`: only applies to Kubernetes and Openshift
    * `false`: install Portworx
    * `true`:
@@ -71,6 +73,7 @@ Notes for GCP:
  * `cloud`: set to one of `aws`, `gcp`
  * `platform`: set to one of `kubernetes`, `openshift`, `swarm`, `rancher`, `nomad`, `dcos`
  * `dcos_license`: DC/OS license hash
+
 There are also some cloud-specific variables below this section that may need to be modified.
 
 11. Start the cluster(s):
@@ -79,4 +82,4 @@ $ vagrant up
 ```
 
 # Notes:
- * The DC/OS UI username and password are admin/admin.
+ * The DC/OS UI username and password are `admin`/`admin`.
