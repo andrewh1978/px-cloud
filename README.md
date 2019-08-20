@@ -33,7 +33,10 @@ This will provision one or more CentOS clusters, along with Portworx, in the clo
  * AWS: `vagrant plugin install vagrant-aws`
  * GCP: `vagrant plugin install vagrant-google`
 
-Note: For AWS, also need to install a dummy box: `vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box`
+Note: For AWS, also need to install a dummy box:
+```
+vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box
+```
 
 5. Clone this repo and cd to it.
 
@@ -46,7 +49,10 @@ Note: For AWS, also need to install a dummy box: `vagrant box add dummy https://
  * GCP: `sh gcp-create-project.sh`
 
 Notes for GCP:
- * Billing needs to be enabled: `gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha billing accounts list | tail -1 | cut -f 1 -d " ")`
+ * Billing needs to be enabled:
+```
+gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha billing accounts list | tail -1 | cut -f 1 -d " ")
+```
  * Create JSON service account key: On GCP console, select the Project, click APIs and Services, Credentials, Create Credentials, Service account key, Create. Save the file.
 
 8. Generate SSH keys. These will be used only for SSH between cluster nodes.
@@ -54,11 +60,7 @@ Notes for GCP:
 # ssh-keygen -t rsa -b 2048 -f id_rsa </dev/null
 ```
 
-9. Source the cloud-specific environment:
- * AWS: `. aws-env.sh`
- * GCP: `. aws-gcp.sh`
-
-10. Edit `Vagrantfile`.
+9. Edit `Vagrantfile`.
  * `clusters`: number of clusters
  * `nodes`: number of nodes per cluster
  * `disk_size`: size of storage disk in GB
@@ -76,7 +78,11 @@ Notes for GCP:
  * `platform`: set to one of `kubernetes`, `openshift`, `swarm`, `rancher`, `nomad`, `dcos`
  * `dcos_license`: DC/OS license hash
 
-There are also some cloud-specific variables below this section that may need to be modified.
+There are also some cloud-specific variables below this section that may need to be modified. They all begin with `AWS_` and `GCP_`.
+
+10. Source the cloud-specific environment:
+ * AWS: `. aws-env.sh`
+ * GCP: `. aws-gcp.sh`
 
 11. Start the cluster(s):
 ```
