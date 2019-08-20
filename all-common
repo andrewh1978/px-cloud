@@ -3,6 +3,8 @@ if [ -f /etc/selinux/config ]; then
   sed -i s/SELINUX=enforcing/SELINUX=disabled/g /etc/selinux/config
 fi
 swapoff -a
+sed -i /swap/d /etc/fstab
+
 echo 127.0.0.1 localhost >/etc/hosts
 for i in $(seq 1 $clusters); do
   echo 192.168.99.1${i}0 master-$i >>/etc/hosts
@@ -10,12 +12,32 @@ for i in $(seq 1 $clusters); do
     echo 192.168.99.1$i$j node-$i-$j >>/etc/hosts
   done
 done
+
 mkdir -p /root/.ssh
-sed -i /swap/d /etc/fstab
 cp /vagrant/id_rsa /root/.ssh
 cp /vagrant/id_rsa.pub /root/.ssh/authorized_keys
-cp /vagrant/sshd_config /etc/ssh/sshd_config
 chmod 600 /root/.ssh/id_rsa
+
+cat <<EOF >/etc/ssh/sshd_config
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+SyslogFacility AUTHPRIV
+AuthorizedKeysFile .ssh/authorized_keys
+PasswordAuthentication yes
+PermitRootLogin yes
+ChallengeResponseAuthentication no
+GSSAPIAuthentication yes
+GSSAPICleanupCredentials no
+UsePAM yes
+X11Forwarding yes
+AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
+AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
+AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGE
+AcceptEnv XMODIFIERS
+Subsystem sftp  /usr/libexec/openssh/sftp-server
+EOF
+
 hostnamectl set-hostname $(getent hosts $(hostname -I) | awk '{print$2}')
 systemctl stop firewalld 2>/dev/null
 systemctl disable firewall 2>/dev/null
