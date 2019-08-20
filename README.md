@@ -3,14 +3,16 @@
 This will provision one or more CentOS clusters, along with Portworx, in the cloud.
 
 # Supported platforms
- * Container:
+
+## Container
  * Kubernetes
  * Openshift
  * Nomad
  * Rancher
  * DC/OS
 
-Cloud:
+
+## Cloud
  * AWS
  * GCP (will not work out of the box until https://github.com/mitchellh/vagrant-google/pull/222 is merged)
 
