@@ -4,19 +4,20 @@ nodes = 3
 disk_size = 20
 cluster_name = "px-test-cluster"
 version = "2.1"
+#version = "2.1.3"
 training = false
 
 # Set cloud to one of "aws", "gcp"
 cloud = "aws"
 
-# Set platform to one of "k8s", "swarm", "nomad", "rancher", "openshift", "dcos"
-platform = "openshift"
+# Set platform to one of "kubernetes", "openshift", "swarm", "rancher", "nomad", "dcos"
+platform = "kubernetes"
 
 # Set DCOS license
 dcos_license="***"
 
 # Set some cloud-specific parameters
-AWS_keypair_name = "***
+AWS_keypair_name = "***"
 AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
 
@@ -86,14 +87,8 @@ Vagrant.configure("2") do |config|
   if platform == "k8s"
     config.vm.provision "shell", path: "k8s-common"
 
-  elsif platform == "swarm"
-    config.vm.provision "shell", path: "swarm-common"
-
   elsif platform == "nomad"
     config.vm.provision "shell", path: "nomad-common"
-
-  elsif platform == "rancher"
-    config.vm.provision "shell", path: "rancher-common"
 
   elsif platform == "openshift"
     config.vm.provision "shell", path: "openshift-common"
@@ -109,7 +104,7 @@ Vagrant.configure("2") do |config|
   (1..clusters).each do |c|
     hostname_master = "master-#{c}"
     config.vm.hostname = "#{hostname_master}"
-    env = { :cluster_name => cluster_name, :c => c, :version => version, :hostname_master => hostname_master, :training => training, :nodes => nodes }
+    env = { :cluster_name => cluster_name, :c => c, :version => version, :hostname_master => hostname_master, :training => training, :nodes => nodes, :dcos_license => dcos_license }
 
     if platform == "dcos"
       open("hosts", "a") do |f|
@@ -130,8 +125,8 @@ Vagrant.configure("2") do |config|
             gcp.network_ip = "192.168.99.1#{c}9"
           end
         end
+        bootstrap.vm.provision "shell", path: "dcos-bootstrap", env: env
       end
-      bootstrap.vm.provision "shell", path: "dcos-bootstrap"
     end
 
     config.vm.define "#{hostname_master}" do |master|
