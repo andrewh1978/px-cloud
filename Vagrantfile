@@ -20,7 +20,7 @@ dcos_license="***"
 tags = { :example_name => "example value" }
 
 # Set some cloud-specific parameters
-AWS_keypair_name = "ah"
+AWS_keypair_name = "***"
 AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
 
