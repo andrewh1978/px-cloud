@@ -10,7 +10,7 @@ This will provision one or more CentOS clusters, along with Portworx, in the clo
  * Nomad
  * Rancher
  * DC/OS
-
+ * Swarm
 
 ## Cloud
  * AWS
