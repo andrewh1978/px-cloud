@@ -77,6 +77,7 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
  * `cloud`: set to one of `aws`, `gcp`
  * `platform`: set to one of `kubernetes`, `openshift`, `swarm`, `rancher`, `nomad`, `dcos`
  * `dcos_license`: DC/OS license hash
+ * `tags`: name/value pairs to be used for AWS tags or GCP metadata
 
 There are also some cloud-specific variables below this section that may need to be modified. They all begin with `AWS_` and `GCP_`.
 
