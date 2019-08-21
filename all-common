@@ -14,9 +14,10 @@ for i in $(seq 1 $clusters); do
 done
 
 mkdir -p /root/.ssh
-cp /vagrant/id_rsa /root/.ssh
-cp /vagrant/id_rsa.pub /root/.ssh/authorized_keys
+mv /tmp/id_rsa /root/.ssh
+chown root.root /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
+ssh-keygen -y -f /root/.ssh/id_rsa >/root/.ssh/authorized_keys
 
 cat <<EOF >/etc/ssh/sshd_config
 HostKey /etc/ssh/ssh_host_rsa_key
