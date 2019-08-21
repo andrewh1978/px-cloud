@@ -16,8 +16,11 @@ platform = "k8s"
 # Set DCOS license
 dcos_license="***"
 
+# Set AWS tags / GCP metadata
+tags = { :example_name => "example value" }
+
 # Set some cloud-specific parameters
-AWS_keypair_name = "***"
+AWS_keypair_name = "ah"
 AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
 
@@ -33,13 +36,14 @@ AWS_security_group_id = "#{ENV['sg']}"
 AWS_ami = "#{ENV['ami']}"
 AWS_region = "#{ENV['AWS_DEFAULT_REGION']}"
 
-if !File.exist?("id_rsa") or !File.exist?("id_rsa.pub")
+if !File.exist?("id_rsa")
     abort("Please create SSH keys before running vagrant up.")
 end
 
 Vagrant.configure("2") do |config|
 
-  config.vm.synced_folder ".", "/vagrant", type: "rsync"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.provision "file", source: "id_rsa", destination: "/tmp/id_rsa"
 
   if cloud == "aws"
     config.vm.box = "dummy"
@@ -67,14 +71,15 @@ Vagrant.configure("2") do |config|
       gcp.disk_size = 15
       gcp.network = "px-net"
       gcp.subnetwork = "px-subnet"
+      gcp.metadata = tags
       override.ssh.username = "#{ENV['USER']}"
       override.ssh.private_key_path = "#{GCP_sshkey_path}"
     end
   end
 
-  env = { :cluster_name => cluster_name, :version => version, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license }
+  env_ = { :cluster_name => cluster_name, :version => version, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license }
 
-  config.vm.provision "shell", path: "all-common", env: env
+  config.vm.provision "shell", path: "all-common", env: env_
 
   if platform == "k8s"
     config.vm.provision "shell", path: "k8s-common"
@@ -86,7 +91,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", path: "openshift-common"
 
   elsif platform == "dcos"
-    config.vm.provision "shell", path: "dcos-common", env: env
+    config.vm.provision "shell", path: "dcos-common", env: env_
   end
 
   if training
@@ -96,7 +101,7 @@ Vagrant.configure("2") do |config|
   (1..clusters).each do |c|
     hostname_master = "master-#{c}"
     config.vm.hostname = "#{hostname_master}"
-    env = env.merge({ :c => c, :hostname_master => hostname_master })
+    env = env_.merge({ :c => c, :hostname_master => hostname_master })
 
     if platform == "dcos"
       config.vm.define "bootstrap-#{c}" do |bootstrap|
@@ -104,7 +109,7 @@ Vagrant.configure("2") do |config|
         if cloud == "aws"
           bootstrap.vm.provider :aws do |aws|
             aws.private_ip_address = "192.168.99.1#{c}9"
-            aws.tags = { "Name" => "bootstrap-#{c}" }
+            aws.tags = tags.merge({ "Name" => "bootstrap-#{c}" })
             aws.instance_type = "t3.medium"
             aws.block_device_mapping = [{ "DeviceName" => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 10 }]
           end
@@ -123,7 +128,7 @@ Vagrant.configure("2") do |config|
       if cloud == "aws"
         master.vm.provider :aws do |aws|
           aws.private_ip_address = "192.168.99.1#{c}0"
-          aws.tags = { "Name" => "#{hostname_master}" }
+          aws.tags = tags.merge({ "Name" => "#{hostname_master}" })
           aws.block_device_mapping = [{ "DeviceName" => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
         end
 
@@ -160,7 +165,7 @@ Vagrant.configure("2") do |config|
         if cloud == "aws"
           node.vm.provider :aws do |aws|
             aws.private_ip_address = "192.168.99.1#{c}#{n}"
-            aws.tags = { "Name" => "node-#{c}-#{n}" }
+            aws.tags = tags.merge({ "Name" => "node-#{c}-#{n}" })
             aws.block_device_mapping = [{ "DeviceName" => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }, { "DeviceName" => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size }]
           end
 
