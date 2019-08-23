@@ -37,7 +37,8 @@ AWS_ami = "#{ENV['ami']}"
 AWS_region = "#{ENV['AWS_DEFAULT_REGION']}"
 
 if !File.exist?("id_rsa")
-    abort("Please create SSH keys before running vagrant up.")
+  system("ssh-keygen -t rsa -b 2048 -f id_rsa </dev/null")
+  File.delete("id_rsa.pub") if File.exist?("id_rsa.pub")
 end
 
 Vagrant.configure("2") do |config|

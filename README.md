@@ -55,12 +55,7 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
 ```
  * Create JSON service account key: On GCP console, select the Project, click APIs and Services, Credentials, Create Credentials, Service account key, Create. Save the file.
 
-8. Generate SSH keys. These will be used only for SSH between cluster nodes.
-```
-# ssh-keygen -t rsa -b 2048 -f id_rsa </dev/null
-```
-
-9. Edit `Vagrantfile`.
+8. Edit `Vagrantfile`.
  * `clusters`: number of clusters
  * `nodes`: number of nodes per cluster
  * `disk_size`: size of storage disk in GB
@@ -81,21 +76,21 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
 
 There are also some cloud-specific variables below this section that may need to be modified. They all begin with `AWS_` and `GCP_`.
 
-10. Source the cloud-specific environment:
+9. Source the cloud-specific environment:
  * AWS: `. aws-env.sh`
  * GCP: `. aws-gcp.sh`
 
-11. Start the cluster(s):
+10. Start the cluster(s):
 ```
 $ vagrant up
 ```
 
-12. Destroy the cluster(s):
+11. Destroy the cluster(s):
 ```
 $ vagrant destroy -fp
 ```
 
-13. Destroy cloud-specific VPC/project:
+12. Destroy cloud-specific VPC/project:
 ```
 $ sh aws-delete-vpc.sh
 $ sh gcp-delete-project.sh
