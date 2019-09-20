@@ -1,4 +1,4 @@
-( yum install -y kubeadm docker
+( yum install -y kubeadm-$k8s_version-0 kubelet-$k8s_version-0 docker
 systemctl enable docker kubelet
 systemctl restart docker kubelet
 kubeadm config images list | xargs -n1 -P0 docker pull

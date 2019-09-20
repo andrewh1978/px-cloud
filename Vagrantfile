@@ -13,6 +13,9 @@ cloud = "aws"
 # Set platform to one of "k8s", "openshift", "swarm", "rancher", "nomad", "dcos"
 platform = "k8s"
 
+# Set K8s version
+k8s_version="1.15.4"
+
 # Set DCOS license
 dcos_license="***"
 
@@ -78,7 +81,7 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  env_ = { :cluster_name => cluster_name, :version => version, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license }
+  env_ = { :cluster_name => cluster_name, :version => version, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license, :k8s_version => k8s_version }
 
   config.vm.provision "shell", path: "all-common", env: env_
 
