@@ -63,6 +63,9 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
  * `version`: Portworx version
    * in Kubernetes and Openshift, this should be the major version for the spec generator, eg `2.0`, `2.1`
    * otherwise it should be the name as the Docker tag, eg `2.1.3`
+ * `journal`:
+    * `false`: no journal
+    * `true`: provision 3GB volume for journal
  * `training`: only applies to Kubernetes and Openshift
    * `false`: install Portworx
    * `true`:
