@@ -144,24 +144,8 @@ Vagrant.configure("2") do |config|
         end
       end
 
-      if platform == "k8s"
-        master.vm.provision "shell", path: "k8s-master", env: env
+      master.vm.provision "shell", path: "#{platform}-master", env: env
 
-      elsif platform == "swarm"
-        master.vm.provision "shell", path: "swarm-master", env: env
-
-      elsif platform == "nomad"
-        master.vm.provision "shell", path: "nomad-master", env: env
-
-      elsif platform == "rancher"
-        master.vm.provision "shell", path: "rancher-master", env: env
-
-      elsif platform == "openshift"
-        master.vm.provision "shell", path: "openshift-master", env: env
-
-      elsif platform == "dcos"
-        master.vm.provision "shell", path: "dcos-master", env: env
-      end
     end
 
     (1..nodes).each do |n|
@@ -188,24 +172,7 @@ Vagrant.configure("2") do |config|
           end
         end
 
-        if platform == "k8s"
-          node.vm.provision "shell", path: "k8s-node", env: env
-
-        elsif platform == "swarm"
-          node.vm.provision "shell", path: "swarm-node", env: env
-
-        elsif platform == "nomad"
-          node.vm.provision "shell", path: "nomad-node", env: env
-
-        elsif platform == "rancher"
-          node.vm.provision "shell", path: "rancher-node", env: env
-
-        elsif platform == "openshift"
-          node.vm.provision "shell", path: "openshift-node", env: env
-
-        elsif platform == "dcos"
-          node.vm.provision "shell", path: "dcos-node", env: env
-        end
+        node.vm.provision "shell", path: "#{platform}-node", env: env
 
       end
     end
