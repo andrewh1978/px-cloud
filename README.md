@@ -42,7 +42,7 @@ vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.
 
 6. Configure cloud-specific environment and project/VPC:
  * AWS: Edit aws-create-vpc.sh and change AWS_DEFAULT_REGION as required
- * GCP: Edit gcp-env.sh and change PROJECT as required
+ * GCP: Edit gcp-env.sh and change GCP_PROJECT and GCP_REGION as required
 
 7. Create cloud-specific VPC/project:
  * AWS: `sh aws-create-vpc.sh`
@@ -75,10 +75,11 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
  * `tags`: name/value pairs to be used for AWS tags or GCP metadata
 
 There are also some cloud-specific variables below this section that may need to be modified. They all begin with `AWS_` and `GCP_`.
+ * `GCP_key`: path to the service account key saved above
 
 9. Source the cloud-specific environment:
  * AWS: `. aws-env.sh`
- * GCP: `. aws-gcp.sh`
+ * GCP: `. gcp-env.sh`
 
 10. Start the cluster(s):
 ```

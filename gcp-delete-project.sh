@@ -1,3 +1,3 @@
 . gcp-env.sh
 
-gcloud projects delete $PROJECT --quiet
+gcloud projects delete $GCP_PROJECT --quiet

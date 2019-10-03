@@ -1,3 +1,4 @@
-PROJECT=pxtest-12345
+GCP_PROJECT=pxtest-1234567
+GCP_REGION=europe-west1
 
-export PROJECT
+export GCP_PROJECT GCP_REGION
