@@ -9,7 +9,10 @@ while : ; do
 done
 docker swarm join --token $token $hostname_master:2377
 docker run --entrypoint /runc-entry-point.sh --rm -i --privileged=true -v /opt/pwx:/opt/pwx -v /etc/pwx:/etc/pwx $latest_stable
-/opt/pwx/bin/px-runc install -c $cluster_name -k etcd://$hostname_master:2379 -a -x swarm
+if [ $journal = true ]; then
+  journal_args="-j /dev/$(lsblk | grep 3G | tail -f | cut -f 1 -d ' ')"
+fi
+/opt/pwx/bin/px-runc install -c $cluster_name -k etcd://$hostname_master:2379 -a -x swarm $journal_args
 systemctl daemon-reload
 systemctl enable portworx
 systemctl start portworx

@@ -43,7 +43,10 @@ systemctl start nomad docker
 echo "export NOMAD_ADDR=http://$hostname_master:4646" >>/root/.bashrc
 latest_stable=$(curl -fsSL "https://install.portworx.com/$version/?type=dock&stork=false" | awk '/image: / {print $2}')
 docker run --entrypoint /runc-entry-point.sh --rm -i --privileged=true -v /opt/pwx:/opt/pwx -v /etc/pwx:/etc/pwx $latest_stable
-/opt/pwx/bin/px-runc install -c $cluster_name -k consul://$hostname_master:8500 -a
+if [ $journal = true ]; then
+  journal_args="-j /dev/$(lsblk | grep 3G | tail -f | cut -f 1 -d ' ')"
+fi
+/opt/pwx/bin/px-runc install -c $cluster_name -k consul://$hostname_master:8500 -a $journal_args
 systemctl daemon-reload
 systemctl enable portworx
 systemctl start portworx
