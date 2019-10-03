@@ -11,4 +11,4 @@ gcloud compute firewall-rules create allow-https --allow=tcp:443 --network px-ne
 gcloud compute firewall-rules create allow-k8s --allow=tcp:6443 --network px-net --project $PROJECT
 gcloud compute firewall-rules create allow-px-tcp --allow=tcp:9001-9022 --network px-net --project $PROJECT
 gcloud compute firewall-rules create allow-px-udp --allow=udp:9002 --network px-net --project $PROJECT
-gcloud compute project-info add-metadata --metadata "ssh-keys=$USER:$(cat $HOME/.ssh/id_rsa.pub"
+gcloud compute project-info add-metadata --metadata "ssh-keys=$USER:$(cat $HOME/.ssh/id_rsa.pub)" --project $PROJECT
