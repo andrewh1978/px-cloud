@@ -3,8 +3,9 @@ clusters = 2
 nodes = 3
 disk_size = 20
 cluster_name = "px-test-cluster"
-version = "2.1"
-#version = "2.1.3"
+version = "2.2"
+#version = "2.2.0"
+journal = false
 training = false
 
 # Set cloud to one of "aws", "gcp"
@@ -28,7 +29,7 @@ AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
 
 GCP_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
-GCP_zone = "europe-west2-a"
+GCP_zone = "#{ENV['GCP_REGION']}-b"
 GCP_key = "./gcp-key.json"
 GCP_type = "n1-standard-2"
 GCP_disk_type = "pd-standard"
@@ -66,7 +67,7 @@ Vagrant.configure("2") do |config|
   elsif cloud == "gcp"
     config.vm.box = "google/gce"
     config.vm.provider :google do |gcp, override|
-      gcp.google_project_id = "#{ENV['PROJECT']}"
+      gcp.google_project_id = "#{ENV['GCP_PROJECT']}"
       gcp.zone = "#{GCP_zone}"
       gcp.google_json_key_location = "#{GCP_key}"
       gcp.image_family = "centos-7"
@@ -81,7 +82,7 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  env_ = { :cluster_name => cluster_name, :version => version, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license, :k8s_version => k8s_version }
+  env_ = { :cluster_name => cluster_name, :version => version, :journal => journal, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license, :k8s_version => k8s_version }
 
   config.vm.provision "shell", path: "all-common", env: env_
 
@@ -171,6 +172,9 @@ Vagrant.configure("2") do |config|
             aws.private_ip_address = "192.168.99.1#{c}#{n}"
             aws.tags = tags.merge({ "Name" => "node-#{c}-#{n}" })
             aws.block_device_mapping = [{ "DeviceName" => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }, { "DeviceName" => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size }]
+            if journal
+              aws.block_device_mapping.push({ "DeviceName" => "/dev/sdc", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 3 })
+            end
           end
 
         elsif cloud == "gcp"
@@ -178,6 +182,9 @@ Vagrant.configure("2") do |config|
             gcp.network_ip = "192.168.99.1#{c}#{n}"
             gcp.name = "node-#{c}-#{n}"
             gcp.additional_disks = [{ :disk_size => disk_size, :disk_name => "disk-#{c}-#{n}" }]
+            if journal
+              gcp.additional_disks.push({ :disk_size => 3, :disk_name => "journal-#{c}-#{n}" })
+            end
           end
         end
 
