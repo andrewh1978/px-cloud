@@ -41,8 +41,18 @@ cd openshift-ansible
 git checkout release-3.11
 ansible-playbook playbooks/prerequisites.yml -i /root/inventory
 ansible-playbook playbooks/deploy_cluster.yml -i /root/inventory
-curl -so /tmp/px.yml "https://install.portworx.com/$version?kbver=$(kubectl version --short | awk -Fv '/Server Version: / {print $3}')&b=true&c=$cluster_name-$c&osft=true&stork=true&lh=true&st=k8s"
 if [ $training = false ]; then
+  k8s_version=$(kubectl version --short | awk -Fv '/Server Version: / {print $3}')
+  url="https://install.portworx.com/$version?kbver=$k8s_version&b=true&c=$cluster_name-$c&osft=true&stork=true&lh=true&st=k8s"
+  if [ $journal = true ]; then
+    while : ; do
+      journal_dev=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no node-$c-1 lsblk | grep 3G | tail -f | cut -f 1 -d " ")
+      [ $? -eq 0 ] && break
+      sleep 5
+    done
+    url="$url&j=/dev/$journal_dev"
+  fi
+  curl -so /tmp/px.yml
   kubectl apply -f /tmp/px.yml
   curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/latest/linux/storkctl -o /usr/bin/storkctl
   chmod +x /usr/bin/storkctl
