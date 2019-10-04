@@ -5,6 +5,13 @@ systemctl enable docker
 systemctl restart docker
 docker pull nginx:alpine &
 mkdir /root/dcos/genconf
+if [ $journal = true ]; then
+  while : ; do
+    journal_args="-j /dev/$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no node-$c-1 lsblk | grep 3G | tail -f | cut -f 1 -d ' ')"
+    [ $? -eq 0 ] && break
+    sleep 5
+  done
+fi
 cat <<EOF >/root/dcos/genconf/ip-detect
 #!/bin/sh
 
@@ -43,7 +50,7 @@ cat <<EOF >/root/config-px.json
     "portworx_cluster": "portworx-dcos",
     "portworx_image": "portworx/px-enterprise:$version",
     "portworx_port_range_start": 9001,
-    "portworx_options": "-a -x mesos",
+    "portworx_options": "-a -x mesos $journal_args",
     "internal_kvdb": false,
     "kvdb_servers": "",
     "container_parameters": "",
