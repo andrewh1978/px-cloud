@@ -52,7 +52,7 @@ if [ $training = false ]; then
     done
     url="$url&j=/dev/$journal_dev"
   fi
-  curl -so /tmp/px.yml
+  curl -so /tmp/px.yml $url
   kubectl apply -f /tmp/px.yml
   curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/latest/linux/storkctl -o /usr/bin/storkctl
   chmod +x /usr/bin/storkctl
