@@ -5,6 +5,7 @@ systemctl enable docker NetworkManager
 systemctl start docker NetworkManager
 cd /root
 htpasswd='$apr1$zTCG/myL$mj1ZMOSkYg7a9NLZK9Tk9.'
+ip=$(curl http://ipinfo.io/ip)
 cat <<EOF >/root/inventory
 [OSEv3:children]
 masters
@@ -20,9 +21,9 @@ openshift_install_examples=true
 openshift_docker_options='--selinux-enabled --insecure-registry 172.30.0.0/16'
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
 openshift_master_htpasswd_users={'admin' : '$htpasswd'}
-openshift_master_default_subdomain=apps.192.168.99.1${c}0
-openshift_master_cluster_public_hostname=192.168.99.1${c}0
-openshift_master_cluster_hostname=192.168.99.1${c}0
+openshift_master_default_subdomain=apps.$ip
+openshift_master_cluster_public_hostname=$ip
+openshift_master_cluster_hostname=$ip
 openshift_disable_check=disk_availability,docker_storage,memory_availability
 openshift_hosted_router_selector='node-role.kubernetes.io/infra=true'
 openshift_enable_service_catalog=false
