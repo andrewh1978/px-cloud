@@ -24,7 +24,7 @@ dcos_license="***"
 tags = { :example_name => "example value" }
 
 # Set some cloud-specific parameters
-AWS_keypair_name = "***"
+AWS_keypair_name = "ah"
 AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
 
@@ -35,10 +35,10 @@ GCP_type = "n1-standard-2"
 GCP_disk_type = "pd-standard"
 
 # Do not edit below this line
-AWS_subnet_id = "#{ENV['subnet']}"
-AWS_security_group_id = "#{ENV['sg']}"
-AWS_ami = "#{ENV['ami']}"
-AWS_region = "#{ENV['AWS_DEFAULT_REGION']}"
+AWS_subnet_id = ENV['subnet']
+AWS_security_group_id = ENV['sg']
+AWS_ami = ENV['ami']
+AWS_region = ENV['AWS_DEFAULT_REGION']
 
 if !File.exist?("id_rsa")
   system("ssh-keygen -t rsa -b 2048 -f id_rsa </dev/null")
@@ -53,32 +53,32 @@ Vagrant.configure("2") do |config|
   if cloud == "aws"
     config.vm.box = "dummy"
     config.vm.provider :aws do |aws, override|
-      aws.security_groups = ["#{AWS_security_group_id}"]
-      aws.keypair_name = "#{AWS_keypair_name}"
-      aws.region = "#{AWS_region}"
-      aws.instance_type = "#{AWS_type}"
-      aws.ami = "#{AWS_ami}"
-      aws.subnet_id = "#{AWS_subnet_id}"
+      aws.security_groups = AWS_security_group_id
+      aws.keypair_name = AWS_keypair_name
+      aws.region = AWS_region
+      aws.instance_type = AWS_type
+      aws.ami = AWS_ami
+      aws.subnet_id = AWS_subnet_id
       aws.associate_public_ip = true
       override.ssh.username = "centos"
-      override.ssh.private_key_path = "#{AWS_sshkey_path}"
+      override.ssh.private_key_path = AWS_sshkey_path
     end
 
   elsif cloud == "gcp"
     config.vm.box = "google/gce"
     config.vm.provider :google do |gcp, override|
-      gcp.google_project_id = "#{ENV['GCP_PROJECT']}"
-      gcp.zone = "#{GCP_zone}"
-      gcp.google_json_key_location = "#{GCP_key}"
+      gcp.google_project_id = ENV['GCP_PROJECT']
+      gcp.zone = GCP_zone
+      gcp.google_json_key_location = GCP_key
       gcp.image_family = "centos-7"
-      gcp.machine_type = "#{GCP_type}"
-      gcp.disk_type = "#{GCP_disk_type}"
+      gcp.machine_type = GCP_type
+      gcp.disk_type = GCP_disk_type
       gcp.disk_size = 15
       gcp.network = "px-net"
       gcp.subnetwork = "px-subnet"
       gcp.metadata = tags
-      override.ssh.username = "#{ENV['USER']}"
-      override.ssh.private_key_path = "#{GCP_sshkey_path}"
+      override.ssh.username = ENV['USER']
+      override.ssh.private_key_path = GCP_sshkey_path
     end
   end
 
@@ -106,7 +106,7 @@ Vagrant.configure("2") do |config|
   (1..clusters).each do |c|
     hostname_master = "master-#{c}"
     ip_master = "192.168.99.1#{c}0"
-    config.vm.hostname = "#{hostname_master}"
+    config.vm.hostname = hostname_master
     env = env_.merge({ :c => c, :ip_master => ip_master, :hostname_master => hostname_master })
 
     if platform == "dcos"
@@ -117,7 +117,7 @@ Vagrant.configure("2") do |config|
             aws.private_ip_address = "192.168.99.1#{c}9"
             aws.tags = tags.merge({ "Name" => "bootstrap-#{c}" })
             aws.instance_type = "t3.medium"
-            aws.block_device_mapping = [{ "DeviceName" => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 10 }]
+            aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 10 }]
           end
         elsif cloud == "gcp"
           bootstrap.vm.provider :google do |gcp|
@@ -129,18 +129,18 @@ Vagrant.configure("2") do |config|
       end
     end
 
-    config.vm.define "#{hostname_master}" do |master|
+    config.vm.define hostname_master do |master|
 
       if cloud == "aws"
         master.vm.provider :aws do |aws|
           aws.private_ip_address = ip_master
-          aws.tags = tags.merge({ "Name" => "#{hostname_master}" })
-          aws.block_device_mapping = [{ "DeviceName" => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
+          aws.tags = tags.merge({ :Name => hostname_master })
+          aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
         end
 
       elsif cloud == "gcp"
         master.vm.provider :google do |gcp|
-          gcp.name = "#{hostname_master}"
+          gcp.name = hostname_master
           gcp.network_ip = ip_master
         end
       end
@@ -155,10 +155,10 @@ Vagrant.configure("2") do |config|
         if cloud == "aws"
           node.vm.provider :aws do |aws|
             aws.private_ip_address = "192.168.99.1#{c}#{n}"
-            aws.tags = tags.merge({ "Name" => "node-#{c}-#{n}" })
-            aws.block_device_mapping = [{ "DeviceName" => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }, { "DeviceName" => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size }]
+            aws.tags = tags.merge({ :Name => "node-#{c}-#{n}" })
+            aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }, { :DeviceName => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size }]
             if journal
-              aws.block_device_mapping.push({ "DeviceName" => "/dev/sdc", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 3 })
+              aws.block_device_mapping.push({ :DeviceName => "/dev/sdc", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 3 })
             end
           end
 
