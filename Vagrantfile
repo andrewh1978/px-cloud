@@ -24,7 +24,7 @@ dcos_license="***"
 tags = { :example_name => "example value" }
 
 # Set some cloud-specific parameters
-AWS_keypair_name = "ah"
+AWS_keypair_name = "***"
 AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
 
@@ -105,7 +105,7 @@ Vagrant.configure("2") do |config|
 
   (1..clusters).each do |c|
     hostname_master = "master-#{c}"
-    ip_master = "192.168.99.1#{c}0"
+    ip_master = "192.168.#{100+c}.90"
     config.vm.hostname = hostname_master
     env = env_.merge({ :c => c, :ip_master => ip_master, :hostname_master => hostname_master })
 
@@ -114,7 +114,7 @@ Vagrant.configure("2") do |config|
         bootstrap.vm.hostname = "bootstrap-#{c}"
         if cloud == "aws"
           bootstrap.vm.provider :aws do |aws|
-            aws.private_ip_address = "192.168.99.1#{c}9"
+            aws.private_ip_address = "192.168.#{100+c}.80"
             aws.tags = tags.merge({ "Name" => "bootstrap-#{c}" })
             aws.instance_type = "t3.medium"
             aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 10 }]
@@ -122,7 +122,7 @@ Vagrant.configure("2") do |config|
         elsif cloud == "gcp"
           bootstrap.vm.provider :google do |gcp|
             gcp.name = "bootstrap-#{c}"
-            gcp.network_ip = "192.168.99.1#{c}9"
+            gcp.network_ip = "192.168.#{100+c}.80"
           end
         end
         bootstrap.vm.provision "shell", path: "dcos-bootstrap", env: env
@@ -154,7 +154,7 @@ Vagrant.configure("2") do |config|
         node.vm.hostname = "node-#{c}-#{n}"
         if cloud == "aws"
           node.vm.provider :aws do |aws|
-            aws.private_ip_address = "192.168.99.1#{c}#{n}"
+            aws.private_ip_address = "192.168.#{100+c}.#{100+n}"
             aws.tags = tags.merge({ :Name => "node-#{c}-#{n}" })
             aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }, { :DeviceName => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size }]
             if journal
@@ -164,7 +164,7 @@ Vagrant.configure("2") do |config|
 
         elsif cloud == "gcp"
           node.vm.provider :google do |gcp|
-            gcp.network_ip = "192.168.99.1#{c}#{n}"
+            gcp.network_ip = "192.168.#{100+c}.#{100+n}"
             gcp.name = "node-#{c}-#{n}"
             gcp.additional_disks = [{ :disk_size => disk_size, :disk_name => "disk-#{c}-#{n}" }]
             if journal
