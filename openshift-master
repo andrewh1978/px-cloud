@@ -65,7 +65,11 @@ if [ $training = false ]; then
       sleep 5
     done
     storkctl generate clusterpair -n default remotecluster-$c | sed "/insert_storage_options_here/c\    ip: node-$c-1\n    token: $token" >/root/cp.yaml
-    cat /root/cp.yaml | ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no master-1 kubectl apply -f -
+    while : ; do
+      cat /root/cp.yaml | ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no master-1 kubectl apply -f -
+      [ $? -eq 0 ] && break
+      sleep 5
+    done
   fi
 fi
 echo End) >&/var/log/vagrant.bootstrap &
