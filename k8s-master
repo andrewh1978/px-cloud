@@ -2,7 +2,7 @@
 systemctl enable docker kubelet
 systemctl restart docker kubelet
 kubeadm config images list | xargs -n1 -P0 docker pull
-kubeadm init --apiserver-advertise-address=192.168.99.1${c}0 --pod-network-cidr=10.244.0.0/16
+kubeadm init --apiserver-advertise-address=$ip_master --pod-network-cidr=10.244.0.0/16
 mkdir /root/.kube
 cp /etc/kubernetes/admin.conf /root/.kube/config
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml

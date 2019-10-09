@@ -19,12 +19,12 @@ hostname -i
 EOF
 superuser_password_hash='$6$rounds=656000$8CXbMqwuglDt3Yai$ZkLEj8zS.GmPGWt.dhwAv0.XsjYXwVHuS9aHh3DMcfGaz45OpGxC5oQPXUUpFLMkqlXCfhXMloIzE0Xh8VwHJ.'
 cat <<EOF >/root/dcos/genconf/config.yaml
-bootstrap_url: http://192.168.99.1${c}9
+bootstrap_url: http://bootstrap-$c
 cluster_name: dcos_test
 exhibitor_storage_backend: static
 master_discovery: static
 master_list:
-- 192.168.99.1${c}0
+- $ip_master
 resolvers:
 - 8.8.8.8
 - 8.8.4.4
@@ -97,7 +97,7 @@ docker run -d -p 80:80 -v /root/dcos/genconf/serve:/usr/share/nginx/html:ro ngin
 wait %2
 chmod 755 /usr/bin/dcos
 while : ; do
-  dcos cluster setup http://192.168.99.1${c}0 --username admin --password admin
+  dcos cluster setup http://master-$c --username admin --password admin
   [ $? -eq 0 ] && break
   sleep 5
 done

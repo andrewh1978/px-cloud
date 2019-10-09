@@ -105,8 +105,9 @@ Vagrant.configure("2") do |config|
 
   (1..clusters).each do |c|
     hostname_master = "master-#{c}"
+    ip_master = "192.168.99.1#{c}0"
     config.vm.hostname = "#{hostname_master}"
-    env = env_.merge({ :c => c, :hostname_master => hostname_master })
+    env = env_.merge({ :c => c, :ip_master => ip_master, :hostname_master => hostname_master })
 
     if platform == "dcos"
       config.vm.define "bootstrap-#{c}" do |bootstrap|
@@ -132,7 +133,7 @@ Vagrant.configure("2") do |config|
 
       if cloud == "aws"
         master.vm.provider :aws do |aws|
-          aws.private_ip_address = "192.168.99.1#{c}0"
+          aws.private_ip_address = ip_master
           aws.tags = tags.merge({ "Name" => "#{hostname_master}" })
           aws.block_device_mapping = [{ "DeviceName" => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
         end
@@ -140,7 +141,7 @@ Vagrant.configure("2") do |config|
       elsif cloud == "gcp"
         master.vm.provider :google do |gcp|
           gcp.name = "#{hostname_master}"
-          gcp.network_ip = "192.168.99.1#{c}0"
+          gcp.network_ip = ip_master
         end
       end
 

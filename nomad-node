@@ -10,11 +10,11 @@ bind_addr  = "$(hostname -i)"
 
 client {
   enabled = true
-  servers = ["192.168.99.1${c}0:4647"]
+  servers = ["$ip_master:4647"]
 }
 
 consul {
-  address = "192.168.99.1${c}0:8500"
+  address = "$ip_master:8500"
 }
 EOF
 cat <<EOF >/etc/systemd/system/nomad.service

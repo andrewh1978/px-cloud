@@ -6,7 +6,7 @@ chmod 755 /usr/bin/consul /usr/bin/nomad
 nomad -autocomplete-install
 cat <<EOF >/etc/nomad.d/server.hcl
 data_dir = "/etc/nomad.d"
-bind_addr= "192.168.99.1${c}0"
+bind_addr= "$ip_master"
 
 server {
   enabled          = true
@@ -14,7 +14,7 @@ server {
 }
 
 consul {
-  address = "192.168.99.1${c}0:8500"
+  address = "$ip_master:8500"
 }
 EOF
 cat <<EOF >/etc/systemd/system/nomad.service
@@ -55,9 +55,9 @@ Type=simple
 User=consul
 Group=consul
 ExecStart=/usr/bin/consul agent -server -ui \
-	-advertise=192.168.99.1${c}0 \
-	-bind=192.168.99.1${c}0 \
-	-client=192.168.99.1${c}0 \
+	-advertise=$ip_master \
+	-bind=$ip_master \
+	-client=$ip_master \
         -bootstrap-expect=1 \
 	-data-dir=/var/lib/consul \
 	-node=master-$c \
