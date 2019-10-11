@@ -1,14 +1,14 @@
 ( yum install -y docker
 systemctl start docker
 systemctl enable docker
-latest_stable=$(curl -fsSL "https://install.portworx.com/$version/?type=dock&stork=false" | awk '/image: / {print $2}')
+[ "$version" ] || version=$(curl -fsSL "https://install.portworx.com/?type=dock&stork=false" | awk -F: '/image: / {print $3}')
 while : ; do
   token=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no $hostname_master docker swarm join-token worker -q)
   [ $? -eq 0 ] && break
   sleep 5
 done
 docker swarm join --token $token $hostname_master:2377
-docker run --entrypoint /runc-entry-point.sh --rm -i --privileged=true -v /opt/pwx:/opt/pwx -v /etc/pwx:/etc/pwx $latest_stable
+docker run --entrypoint /runc-entry-point.sh --rm -i --privileged=true -v /opt/pwx:/opt/pwx -v /etc/pwx:/etc/pwx portworx/px-enterprise:$version
 if [ $journal = true ]; then
   journal_args="-j /dev/$(lsblk | grep 3G | tail -f | cut -f 1 -d ' ')"
 fi

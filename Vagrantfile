@@ -3,8 +3,7 @@ clusters = 2
 nodes = 3
 disk_size = 20
 cluster_name = "px-test-cluster"
-version = "2.2"
-#version = "2.2.0"
+version = ""
 journal = false
 training = false
 

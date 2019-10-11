@@ -61,8 +61,8 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
  * `disk_size`: size of storage disk in GB
  * `cluster_name`: name of cluster (except in Kubernetes and Openshift, where it will be `$clustername-$n`, where `$n` is the cluster number)
  * `version`: Portworx version
-   * in Kubernetes and Openshift, this should be the major version for the spec generator, eg `2.0`, `2.1`
-   * otherwise it should be the name as the Docker tag, eg `2.1.3`
+   * leave blank to determine latest version from install.portworx.com
+   * otherwise it should be the name as the Docker tag, eg `2.1.5`
  * `journal`:
     * `false`: no journal
     * `true`: provision 3GB volume for journal

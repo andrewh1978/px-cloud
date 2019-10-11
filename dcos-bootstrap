@@ -4,6 +4,7 @@ yum install -y docker unzip ipset
 systemctl enable docker
 systemctl restart docker
 docker pull nginx:alpine &
+[ "$version" ] || version=$(curl -fsSL "https://install.portworx.com/?type=dock&stork=false" | awk -F: '/image: / {print $3}')
 mkdir /root/dcos/genconf
 if [ $journal = true ]; then
   while : ; do

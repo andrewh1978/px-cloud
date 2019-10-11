@@ -44,7 +44,7 @@ ansible-playbook playbooks/prerequisites.yml -i /root/inventory
 ansible-playbook playbooks/deploy_cluster.yml -i /root/inventory
 if [ $training = false ]; then
   k8s_version=$(kubectl version --short | awk -Fv '/Server Version: / {print $3}')
-  url="https://install.portworx.com/$version?kbver=$k8s_version&b=true&c=$cluster_name-$c&osft=true&stork=true&lh=true&st=k8s"
+  url="https://install.portworx.com/?kbver=$k8s_version&b=true&c=$cluster_name-$c&stork=true&st=k8s&lh=true"
   if [ $journal = true ]; then
     while : ; do
       journal_dev=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no node-$c-1 lsblk | grep 3G | tail -f | cut -f 1 -d " ")
@@ -54,6 +54,7 @@ if [ $training = false ]; then
     url="$url&j=/dev/$journal_dev"
   fi
   curl -so /tmp/px.yml $url
+  [ "$version" ] && sed -ri s/oci-monitor:[0-9\.]+/oci-monitor:$version/ /tmp/px.yml
   kubectl apply -f /tmp/px.yml
   curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/latest/linux/storkctl -o /usr/bin/storkctl
   chmod +x /usr/bin/storkctl
