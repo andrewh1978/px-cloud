@@ -40,7 +40,7 @@ AWS_ami = ENV['ami']
 AWS_region = ENV['AWS_DEFAULT_REGION']
 
 if !File.exist?("id_rsa")
-  system("ssh-keygen -t rsa -b 2048 -f id_rsa </dev/null")
+  system("ssh-keygen -t rsa -b 2048 -f id_rsa -N ''");
   File.delete("id_rsa.pub") if File.exist?("id_rsa.pub")
 end
 
