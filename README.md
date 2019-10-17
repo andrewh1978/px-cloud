@@ -78,6 +78,9 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
  * `tags`: name/value pairs to be used for AWS tags or GCP metadata
 
 There are also some cloud-specific variables below this section that may need to be modified. They all begin with `AWS_` and `GCP_`.
+ * `AWS_keypair_name`: change to your keypair name
+ * `AWS_sshkey_path`: the private SSH key associated with the AWS keypair
+ * `AWS_type`: t3.large is the default, t3.medium also works
  * `GCP_key`: path to the service account key saved above
 
 9. Source the cloud-specific environment:
