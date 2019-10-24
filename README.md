@@ -109,8 +109,8 @@ $ sh gcp-delete-project.sh
  * The `status.sh` script will output a list of master nodes and IP addresses, useful for training sessions:
 ```
 $ sh status.sh
-master-1 34.245.47.251
-master-2 34.252.74.216
-master-3 34.245.11.144
+master-1 34.245.47.251 ec2-34-245-47-251.eu-west-1.compute.amazonaws.com
+master-2 34.252.74.216 ec2-34-252-74-216.eu-west-1.compute.amazonaws.com
+master-3 34.245.11.144 ec2-34-245-11-144.eu-west-1.compute.amazonaws.com
 ...
 ```
