@@ -81,6 +81,7 @@ There are also some cloud-specific variables below this section that may need to
  * `AWS_keypair_name`: change to your keypair name
  * `AWS_sshkey_path`: the private SSH key associated with the AWS keypair
  * `AWS_type`: t3.large is the default, t3.medium also works
+ * `AWS_hostname_prefix`: set prefix for hostnames on AWS
  * `GCP_key`: path to the service account key saved above
 
 9. Source the cloud-specific environment:

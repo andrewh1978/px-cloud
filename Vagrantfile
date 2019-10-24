@@ -26,6 +26,7 @@ tags = { :example_name => "example value" }
 AWS_keypair_name = "***"
 AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
+AWS_hostname_prefix = ""
 
 GCP_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 GCP_zone = "#{ENV['GCP_REGION']}-b"
@@ -114,7 +115,7 @@ Vagrant.configure("2") do |config|
         if cloud == "aws"
           bootstrap.vm.provider :aws do |aws|
             aws.private_ip_address = "192.168.#{100+c}.80"
-            aws.tags = tags.merge({ "Name" => "bootstrap-#{c}" })
+            aws.tags = tags.merge({ "Name" => "#{AWS_hostname_prefix}bootstrap-#{c}" })
             aws.instance_type = "t3.medium"
             aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 10 }]
           end
@@ -133,7 +134,7 @@ Vagrant.configure("2") do |config|
       if cloud == "aws"
         master.vm.provider :aws do |aws|
           aws.private_ip_address = ip_master
-          aws.tags = tags.merge({ :Name => hostname_master })
+          aws.tags = tags.merge({ :Name => "#{AWS_hostname_prefix}#{hostname_master}" })
           aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
         end
 
@@ -154,7 +155,7 @@ Vagrant.configure("2") do |config|
         if cloud == "aws"
           node.vm.provider :aws do |aws|
             aws.private_ip_address = "192.168.#{100+c}.#{100+n}"
-            aws.tags = tags.merge({ :Name => "node-#{c}-#{n}" })
+            aws.tags = tags.merge({ :Name => "#{AWS_hostname_prefix}node-#{c}-#{n}" })
             aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }, { :DeviceName => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size }]
             if journal
               aws.block_device_mapping.push({ :DeviceName => "/dev/sdc", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 3 })
