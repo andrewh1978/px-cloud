@@ -113,4 +113,8 @@ master-1 34.245.47.251 ec2-34-245-47-251.eu-west-1.compute.amazonaws.com
 master-2 34.252.74.216 ec2-34-252-74-216.eu-west-1.compute.amazonaws.com
 master-3 34.245.11.144 ec2-34-245-11-144.eu-west-1.compute.amazonaws.com
 ...
+
+If you need a list of VM IDs for whitelisting, use:
+```
+aws ec2 describe-instances --filters "Name=vpc-id,Values=$vpc" --query 'Reservations[*].Instances[*].[InstanceId]' --output text
 ```
