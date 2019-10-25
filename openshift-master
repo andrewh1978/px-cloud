@@ -24,7 +24,8 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 openshift_master_htpasswd_users={'admin' : '$htpasswd'}
 openshift_master_default_subdomain=apps.$ip
 openshift_master_cluster_public_hostname=$ip
-openshift_master_cluster_hostname=$ip
+openshift_master_cluster_hostname=master-$c
+openshift_web_console_install=false
 openshift_disable_check=disk_availability,docker_storage,memory_availability
 openshift_hosted_router_selector='node-role.kubernetes.io/infra=true'
 openshift_enable_service_catalog=false

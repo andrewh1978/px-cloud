@@ -78,6 +78,10 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
  * `tags`: name/value pairs to be used for AWS tags or GCP metadata
 
 There are also some cloud-specific variables below this section that may need to be modified. They all begin with `AWS_` and `GCP_`.
+ * `AWS_keypair_name`: change to your keypair name
+ * `AWS_sshkey_path`: the private SSH key associated with the AWS keypair
+ * `AWS_type`: t3.large is the default, t3.medium also works
+ * `AWS_hostname_prefix`: set prefix for hostnames on AWS
  * `GCP_key`: path to the service account key saved above
 
 9. Source the cloud-specific environment:
@@ -105,8 +109,13 @@ $ sh gcp-delete-project.sh
  * The `status.sh` script will output a list of master nodes and IP addresses, useful for training sessions:
 ```
 $ sh status.sh
-master-1 34.245.47.251
-master-2 34.252.74.216
-master-3 34.245.11.144
+master-1 34.245.47.251 ec2-34-245-47-251.eu-west-1.compute.amazonaws.com
+master-2 34.252.74.216 ec2-34-252-74-216.eu-west-1.compute.amazonaws.com
+master-3 34.245.11.144 ec2-34-245-11-144.eu-west-1.compute.amazonaws.com
 ...
+```
+
+If you need a list of VM IDs for whitelisting, use:
+```
+aws ec2 describe-instances --filters "Name=vpc-id,Values=$vpc" --query 'Reservations[*].Instances[*].[InstanceId]' --output text
 ```
