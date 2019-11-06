@@ -1,5 +1,5 @@
 # Edit these parameters
-clusters = 3
+clusters = 2
 nodes = 3
 disk_size = 20
 cluster_name = "px-test-cluster"
