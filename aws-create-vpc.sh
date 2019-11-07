@@ -13,7 +13,7 @@ sg=$(aws --output json ec2 create-security-group --group-name px-cloud --descrip
 aws ec2 authorize-security-group-ingress --group-id $sg --protocol tcp --port 22 --cidr 0.0.0.0/0
 aws ec2 authorize-security-group-ingress --group-id $sg --protocol tcp --port 443 --cidr 0.0.0.0/0
 aws ec2 authorize-security-group-ingress --group-id $sg --protocol tcp --port 8443 --cidr 0.0.0.0/0
-+aws ec2 authorize-security-group-ingress --group-id $sg --protocol tcp --port 30000-32767 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $sg --protocol tcp --port 30000-32767 --cidr 0.0.0.0/0
 aws ec2 authorize-security-group-ingress --group-id $sg --protocol all --cidr 192.168.0.0/16
 
 ami=$(aws --output json ec2 describe-images --owners 679593333241 --filters Name=name,Values='CentOS Linux 7 x86_64 HVM EBS*' Name=architecture,Values=x86_64 Name=root-device-type,Values=ebs --query 'sort_by(Images, &Name)[-1].ImageId' --output text)
