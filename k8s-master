@@ -2,7 +2,7 @@
 yum install -y kubeadm-$k8s_version-0
 systemctl enable docker kubelet
 systemctl restart docker kubelet
-kubeadm config images list | xargs -n1 -P0 docker pull
+kubeadm config images list --kubernetes-version $k8s_version | xargs -n1 -P0 docker pull
 kubeadm init --apiserver-advertise-address=$ip_master --pod-network-cidr=10.244.0.0/16
 mkdir /root/.kube
 cp /etc/kubernetes/admin.conf /root/.kube/config
@@ -23,8 +23,10 @@ if [ $training = false ]; then
   kubectl apply -f /tmp/px.yml
   while : ; do
     STORK_POD=$(kubectl get pods -n kube-system -l name=stork -o jsonpath='{.items[0].metadata.name}')
-    kubectl cp -n kube-system $STORK_POD:/storkctl/linux/storkctl /usr/bin/storkctl
-    [ $? -eq 0 ] && break
+    if [ "$STORK_POD" ]; then
+      kubectl cp -n kube-system $STORK_POD:/storkctl/linux/storkctl /usr/bin/storkctl
+      [ $? -eq 0 ] && break
+    fi
     sleep 5
   done
   chmod +x /usr/bin/storkctl
