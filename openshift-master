@@ -6,8 +6,6 @@ systemctl start docker NetworkManager
 cd /root
 htpasswd='$apr1$zTCG/myL$mj1ZMOSkYg7a9NLZK9Tk9.'
 ip=$(curl http://ipinfo.io/ip)
-curl -s http://openstorage-stork.s3-website-us-east-1.amazonaws.com/storkctl/latest/linux/storkctl -o /usr/bin/storkctl
-chmod +x /usr/bin/storkctl
 cat <<EOF >/root/inventory
 [OSEv3:children]
 masters
@@ -61,7 +59,16 @@ if [ $training = false ]; then
   curl -so /tmp/px.yml $url
   [ "$version" ] && sed -ri s/oci-monitor:[0-9\.]+/oci-monitor:$version/ /tmp/px.yml
   kubectl apply -f /tmp/px.yml
-  if [ $(hostname) != master-1 ]; then
+  while : ; do
+    STORK_POD=$(kubectl get pods -n kube-system -l name=stork -o jsonpath='{.items[0].metadata.name}')
+    if [ "$STORK_POD" ]; then
+      kubectl cp -n kube-system $STORK_POD:/storkctl/linux/storkctl /usr/bin/storkctl
+      chmod +x /usr/bin/storkctl
+      [ $? -eq 0 ] && break
+    fi
+    sleep 5
+  done
+  if [ $c != 1 ]; then
     while : ; do
       token=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no node-$c-1 pxctl cluster token show | cut -f 3 -d " ")
       echo $token | grep -Eq '\w{128}'
