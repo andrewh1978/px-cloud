@@ -3,7 +3,7 @@ clusters = 2
 nodes = 3
 disk_size = 20
 cluster_name = "px-test-cluster"
-version = ""
+version = "2.2.0.1"
 journal = false
 training = false
 
@@ -14,7 +14,7 @@ cloud = "aws"
 platform = "k8s"
 
 # Set K8s version
-k8s_version="1.15.4"
+k8s_version="1.16.2"
 
 # Set DCOS license
 dcos_license="***"
