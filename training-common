@@ -1,4 +1,4 @@
-( yum install -y git epel-release
+( yum install -y git epel-release vim-enhanced
 yum install -y shellinabox
 rm -f /etc/securetty
 passwd --stdin root <<<portworx
