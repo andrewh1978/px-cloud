@@ -2,14 +2,14 @@
 AWS_DEFAULT_REGION=eu-west-1
 
 # Do not change below this line
-vpc=$(aws --output json ec2 create-vpc --cidr-block 192.168.0.0/16 | json Vpc.VpcId)
-subnet=$(aws --output json ec2 create-subnet --vpc-id $vpc --cidr-block 192.168.0.0/16 | json Subnet.SubnetId)
-gw=$(aws --output json ec2 create-internet-gateway | json InternetGateway.InternetGatewayId)
+vpc=$(aws --output json ec2 create-vpc --cidr-block 192.168.0.0/16 | jq -r .Vpc.VpcId)
+subnet=$(aws --output json ec2 create-subnet --vpc-id $vpc --cidr-block 192.168.0.0/16 | jq -r .Subnet.SubnetId)
+gw=$(aws --output json ec2 create-internet-gateway | jq -r .InternetGateway.InternetGatewayId)
 aws ec2 attach-internet-gateway --vpc-id $vpc --internet-gateway-id $gw
-routetable=$(aws --output json ec2 create-route-table --vpc-id $vpc | json RouteTable.RouteTableId)
+routetable=$(aws --output json ec2 create-route-table --vpc-id $vpc | jq -r .RouteTable.RouteTableId)
 aws ec2 create-route --route-table-id $routetable --destination-cidr-block 0.0.0.0/0 --gateway-id $gw >/dev/null
 aws ec2 associate-route-table  --subnet-id $subnet --route-table-id $routetable >/dev/null
-sg=$(aws --output json ec2 create-security-group --group-name px-cloud --description "Security group for px-cloud" --vpc-id $vpc | json GroupId)
+sg=$(aws --output json ec2 create-security-group --group-name px-cloud --description "Security group for px-cloud" --vpc-id $vpc | jq -r .GroupId)
 aws ec2 authorize-security-group-ingress --group-id $sg --protocol tcp --port 22 --cidr 0.0.0.0/0
 aws ec2 authorize-security-group-ingress --group-id $sg --protocol tcp --port 443 --cidr 0.0.0.0/0
 aws ec2 authorize-security-group-ingress --group-id $sg --protocol tcp --port 8080 --cidr 0.0.0.0/0

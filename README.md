@@ -24,9 +24,11 @@ This will provision one or more CentOS clusters, along with Portworx, in the clo
 
 2. Install [Vagrant](https://www.vagrantup.com/downloads.html).
 
-3. (Only required for AWS) Ensure you have Node.js installed, and install the json module:
+3. (Only required for AWS) Ensure you have `jq` installed, eg:
 ```
-# npm install -g json
+# brew install jq
+# yum install jq
+# apt install jq
 ```
 
 4. Install the Vagrant plugin for your choice of cloud provider:
