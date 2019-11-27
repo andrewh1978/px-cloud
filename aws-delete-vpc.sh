@@ -1,8 +1,9 @@
 . aws-env.sh
 
-aws ec2 delete-security-group --group-id $sg
-aws ec2 delete-subnet --subnet-id $subnet
-aws ec2 detach-internet-gateway --internet-gateway-id $gw --vpc-id $vpc
-aws ec2 delete-internet-gateway --internet-gateway-id $gw
-aws ec2 delete-route-table --route-table-id $routetable
-aws ec2 delete-vpc --vpc-id $vpc
+aws ec2 --region=$AWS_region delete-security-group --group-id $AWS_sg &&
+aws ec2 --region=$AWS_region delete-subnet --subnet-id $AWS_subnet &&
+aws ec2 --region=$AWS_region detach-internet-gateway --internet-gateway-id $AWS_gw --vpc-id $AWS_vpc &&
+aws ec2 --region=$AWS_region delete-internet-gateway --internet-gateway-id $AWS_gw &&
+aws ec2 --region=$AWS_region delete-route-table --route-table-id $AWS_routetable &&
+aws ec2 --region=$AWS_region delete-vpc --vpc-id $AWS_vpc &&
+rm aws-env.sh

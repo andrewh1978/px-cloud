@@ -35,11 +35,6 @@ GCP_type = "n1-standard-2"
 GCP_disk_type = "pd-standard"
 
 # Do not edit below this line
-AWS_subnet_id = ENV['subnet']
-AWS_security_group_id = ENV['sg']
-AWS_ami = ENV['ami']
-AWS_region = ENV['AWS_DEFAULT_REGION']
-
 if !File.exist?("id_rsa")
   system("ssh-keygen -t rsa -b 2048 -f id_rsa -N ''");
   File.delete("id_rsa.pub") if File.exist?("id_rsa.pub")
@@ -53,12 +48,12 @@ Vagrant.configure("2") do |config|
   if cloud == "aws"
     config.vm.box = "dummy"
     config.vm.provider :aws do |aws, override|
-      aws.security_groups = AWS_security_group_id
+      aws.security_groups = ENV['AWS_sg']
       aws.keypair_name = AWS_keypair_name
-      aws.region = AWS_region
+      aws.region = ENV['AWS_region']
       aws.instance_type = AWS_type
-      aws.ami = AWS_ami
-      aws.subnet_id = AWS_subnet_id
+      aws.ami = ENV['AWS_ami']
+      aws.subnet_id = ENV['AWS_subnet']
       aws.associate_public_ip = true
       override.ssh.username = "centos"
       override.ssh.private_key_path = AWS_sshkey_path
