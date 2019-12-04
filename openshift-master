@@ -6,6 +6,15 @@ systemctl start docker NetworkManager
 cd /root
 htpasswd='$apr1$zTCG/myL$mj1ZMOSkYg7a9NLZK9Tk9.'
 ip=$(curl http://ipinfo.io/ip)
+cat <<EOF >/root/prereq.sh
+oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:px-account
+oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:portworx-pvc-controller-account
+oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:px-lh-account
+oc adm policy add-scc-to-user anyuid system:serviceaccount:kube-system:px-lh-account
+oc adm policy add-scc-to-user anyuid system:serviceaccount:default:default
+oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:px-csi-account
+oc adm policy add-scc-to-user privileged system:serviceaccount:default:default
+EOF
 cat <<EOF >/root/inventory
 [OSEv3:children]
 masters
