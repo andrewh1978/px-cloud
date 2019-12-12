@@ -43,8 +43,8 @@ vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.
 5. Clone this repo and cd to it.
 
 6. Configure cloud-specific environment and project/VPC:
- * AWS: Edit aws-create-vpc.sh and change AWS_region as required (you need to ensure this matches the region set in `$HOME/.aws/config` until https://github.com/mitchellh/vagrant-aws/pull/564 is merged)
- * GCP: Edit gcp-create-project.sh and change GCP_PROJECT and GCP_REGION as required
+ * AWS: Edit aws-create-vpc.sh and change AWS_region as required (you need to ensure this matches the region set in `$HOME/.aws/config` until https://github.com/mitchellh/vagrant-aws/pull/564 is merged). AWS_owner_tag will add an owner tag to all of the AWS objects.
+ * GCP: Edit gcp-create-project.sh and change GCP_PROJECT and GCP_REGION as required. GCP_owner_tag will add an owner tag to all of the GCP objects.
 
 7. Create cloud-specific VPC/project:
  * AWS: `sh aws-create-vpc.sh`
@@ -77,7 +77,6 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
  * `cloud`: set to one of `aws`, `gcp`
  * `platform`: set to one of `kubernetes`, `openshift`, `swarm`, `rancher`, `nomad`, `dcos`
  * `dcos_license`: DC/OS license hash
- * `tags`: name/value pairs to be used for AWS tags or GCP metadata
 
 There are also some cloud-specific variables below this section that may need to be modified. They all begin with `AWS_` and `GCP_`.
  * `AWS_keypair_name`: change to your keypair name

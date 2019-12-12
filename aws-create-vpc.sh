@@ -1,6 +1,9 @@
 # Set the AWS region
 AWS_region=eu-west-1
 
+# Set the px-cloud_owner tag
+AWS_owner_tag=CHANGEME
+
 # Do not change below this line
 AWS_vpc=$(aws --region=$AWS_region --output json ec2 create-vpc --cidr-block 192.168.0.0/16 | jq -r .Vpc.VpcId)
 AWS_subnet=$(aws --region=$AWS_region --output json ec2 create-subnet --vpc-id $AWS_vpc --cidr-block 192.168.0.0/16 | jq -r .Subnet.SubnetId)
@@ -26,5 +29,8 @@ AWS_routetable=$AWS_routetable
 AWS_sg=$AWS_sg
 AWS_ami=$AWS_ami
 AWS_region=$AWS_region
-export AWS_vpc AWS_subnet AWS_gw AWS_routetable AWS_sg AWS_ami AWS_region
+AWS_owner_tag=$AWS_owner_tag
+export AWS_vpc AWS_subnet AWS_gw AWS_routetable AWS_sg AWS_ami AWS_region AWS_owner_tag
 EOF
+
+aws --region=$AWS_region ec2 create-tags --resources $AWS_vpc $AWS_subnet $AWS_gw $AWS_routetable $AWS_sg --tags Key=px-cloud_owner,Value=$AWS_owner_tag

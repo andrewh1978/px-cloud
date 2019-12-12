@@ -19,11 +19,8 @@ k8s_version="1.16.3"
 # Set DCOS license
 dcos_license="***"
 
-# Set AWS tags / GCP metadata
-tags = { :example_name => "example value" }
-
 # Set some cloud-specific parameters
-AWS_keypair_name = "***"
+AWS_keypair_name = "CHANGEME"
 AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
 AWS_hostname_prefix = ""
@@ -71,7 +68,7 @@ Vagrant.configure("2") do |config|
       gcp.disk_size = 15
       gcp.network = "px-net"
       gcp.subnetwork = "px-subnet"
-      gcp.metadata = tags
+      gcp.metadata = { "px-cloud_owner" => ENV['GCP_owner_tag'] }
       override.ssh.username = ENV['USER']
       override.ssh.private_key_path = GCP_sshkey_path
     end
@@ -110,7 +107,7 @@ Vagrant.configure("2") do |config|
         if cloud == "aws"
           bootstrap.vm.provider :aws do |aws|
             aws.private_ip_address = "192.168.#{100+c}.80"
-            aws.tags = tags.merge({ "Name" => "#{AWS_hostname_prefix}bootstrap-#{c}" })
+            aws.tags = { "px-cloud_owner" => ENV['AWS_owner_tag'], "Name" => "#{AWS_hostname_prefix}bootstrap-#{c}" }
             aws.instance_type = "t3.medium"
             aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 10 }]
           end
@@ -129,7 +126,7 @@ Vagrant.configure("2") do |config|
       if cloud == "aws"
         master.vm.provider :aws do |aws|
           aws.private_ip_address = ip_master
-          aws.tags = tags.merge({ :Name => "#{AWS_hostname_prefix}#{hostname_master}" })
+          aws.tags = { "px-cloud_owner" => ENV['AWS_owner_tag'], "Name" => "#{AWS_hostname_prefix}master-#{c}" }
           aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
         end
 
@@ -150,7 +147,7 @@ Vagrant.configure("2") do |config|
         if cloud == "aws"
           node.vm.provider :aws do |aws|
             aws.private_ip_address = "192.168.#{100+c}.#{100+n}"
-            aws.tags = tags.merge({ :Name => "#{AWS_hostname_prefix}node-#{c}-#{n}" })
+            aws.tags = { "px-cloud_owner" => ENV['AWS_owner_tag'], "Name" => "#{AWS_hostname_prefix}node-#{c}-#{n}" }
             aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }, { :DeviceName => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size }]
             if journal
               aws.block_device_mapping.push({ :DeviceName => "/dev/sdc", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 3 })
