@@ -1,7 +1,6 @@
 ( yum install -y git epel-release vim-enhanced
 yum install -y shellinabox
 rm -f /etc/securetty
-passwd --stdin root <<<portworx
 sed -i s/4200/443/ /etc/sysconfig/shellinaboxd
 systemctl enable shellinaboxd
 systemctl restart shellinaboxd sshd

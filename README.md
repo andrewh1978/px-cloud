@@ -73,7 +73,6 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
    * `true`:
      * do not install Portworx
      * install [shellinabox](https://github.com/shellinabox/shellinabox) (this will listen on port 443 of each node)
-     * set root password to `portworx`
  * `cloud`: set to one of `aws`, `gcp`
  * `platform`: set to one of `kubernetes`, `openshift`, `swarm`, `rancher`, `nomad`, `dcos`
  * `dcos_license`: DC/OS license hash
@@ -107,6 +106,7 @@ $ sh gcp-delete-project.sh
 
 # Notes:
  * The DC/OS UI username and password are `admin`/`admin`.
+ * The root SSH password is `portworx`.
  * The `status.sh` script will output a list of master nodes and IP addresses, useful for training sessions:
 ```
 $ sh status.sh
