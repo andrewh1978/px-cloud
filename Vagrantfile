@@ -14,7 +14,7 @@ cloud = "aws"
 platform = "k8s"
 
 # Set K8s version
-k8s_version="1.16.3"
+k8s_version="1.16.4"
 
 # Set DCOS license
 dcos_license="***"
