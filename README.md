@@ -24,14 +24,7 @@ This will provision one or more CentOS clusters, along with Portworx, in the clo
 
 2. Install [Vagrant](https://www.vagrantup.com/downloads.html).
 
-3. (Only required for AWS) Ensure you have `jq` installed, eg:
-```
-# brew install jq
-# yum install jq
-# apt install jq
-```
-
-4. Install the Vagrant plugin for your choice of cloud provider:
+3. Install the Vagrant plugin for your choice of cloud provider:
  * AWS: `vagrant plugin install vagrant-aws`
  * GCP: `vagrant plugin install vagrant-google`
 
@@ -40,13 +33,13 @@ Note: For AWS, also need to install a dummy box:
 vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box
 ```
 
-5. Clone this repo and cd to it.
+4. Clone this repo and cd to it.
 
-6. Configure cloud-specific environment and project/VPC:
+5. Configure cloud-specific environment and project/VPC:
  * AWS: Edit aws-create-vpc.sh and change AWS_region as required (you need to ensure this matches the region set in `$HOME/.aws/config` until https://github.com/mitchellh/vagrant-aws/pull/564 is merged). AWS_owner_tag will add an owner tag to all of the AWS objects.
  * GCP: Edit gcp-create-project.sh and change GCP_PROJECT and GCP_REGION as required. GCP_owner_tag will add an owner tag to all of the GCP objects.
 
-7. Create cloud-specific VPC/project:
+6. Create cloud-specific VPC/project:
  * AWS: `sh aws-create-vpc.sh`
  * GCP: `sh gcp-create-project.sh`
 
@@ -57,7 +50,7 @@ gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha bil
 ```
  * Create JSON service account key: On GCP console, select the Project, click APIs and Services, Credentials, Create Credentials, Service account key, Create. Save the file.
 
-8. Edit `Vagrantfile`.
+7. Edit `Vagrantfile`.
  * `clusters`: number of clusters
  * `nodes`: number of nodes per cluster
  * `disk_size`: size of storage disk in GB
@@ -84,21 +77,21 @@ There are also some cloud-specific variables below this section that may need to
  * `AWS_hostname_prefix`: set prefix for hostnames on AWS
  * `GCP_key`: path to the service account key saved above
 
-9. Source the cloud-specific environment:
+8. Source the cloud-specific environment:
  * AWS: `. aws-env.sh`
  * GCP: `. gcp-env.sh`
 
-10. Start the cluster(s):
+9. Start the cluster(s):
 ```
 $ vagrant up
 ```
 
-11. Destroy the cluster(s):
+10. Destroy the cluster(s):
 ```
 $ vagrant destroy -fp
 ```
 
-12. Destroy cloud-specific VPC/project:
+11. Destroy cloud-specific VPC/project:
 ```
 $ sh aws-delete-vpc.sh
 $ sh gcp-delete-project.sh
