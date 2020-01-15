@@ -52,6 +52,7 @@ Vagrant.configure("2") do |config|
       aws.ami = ENV['AWS_ami']
       aws.subnet_id = ENV['AWS_subnet']
       aws.associate_public_ip = true
+      aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
       override.ssh.username = "centos"
       override.ssh.private_key_path = AWS_sshkey_path
     end
@@ -64,7 +65,6 @@ Vagrant.configure("2") do |config|
       gcp.google_json_key_location = GCP_key
       gcp.image_family = "centos-7"
       gcp.machine_type = GCP_type
-      gcp.disk_type = GCP_disk_type
       gcp.disk_size = 15
       gcp.network = "px-net"
       gcp.subnetwork = "px-subnet"
@@ -97,7 +97,6 @@ Vagrant.configure("2") do |config|
             aws.private_ip_address = "192.168.#{100+c}.80"
             aws.tags = { "px-cloud_owner" => ENV['AWS_owner_tag'], "Name" => "#{AWS_hostname_prefix}bootstrap-#{c}" }
             aws.instance_type = "t3.medium"
-            aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 10 }]
           end
         elsif cloud == "gcp"
           bootstrap.vm.provider :google do |gcp|
@@ -115,7 +114,6 @@ Vagrant.configure("2") do |config|
         master.vm.provider :aws do |aws|
           aws.private_ip_address = ip_master
           aws.tags = { "px-cloud_owner" => ENV['AWS_owner_tag'], "Name" => "#{AWS_hostname_prefix}master-#{c}" }
-          aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
         end
 
       elsif cloud == "gcp"
@@ -136,7 +134,7 @@ Vagrant.configure("2") do |config|
           node.vm.provider :aws do |aws|
             aws.private_ip_address = "192.168.#{100+c}.#{100+n}"
             aws.tags = { "px-cloud_owner" => ENV['AWS_owner_tag'], "Name" => "#{AWS_hostname_prefix}node-#{c}-#{n}" }
-            aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }, { :DeviceName => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size }]
+            aws.block_device_mapping.push({ :DeviceName => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size })
             if journal
               aws.block_device_mapping.push({ :DeviceName => "/dev/sdc", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 3 })
             end
