@@ -32,10 +32,8 @@ GCP_type = "n1-standard-2"
 GCP_disk_type = "pd-standard"
 
 # Do not edit below this line
-if !File.exist?("id_rsa")
-  system("ssh-keygen -t rsa -b 2048 -f id_rsa -N ''");
-  File.delete("id_rsa.pub") if File.exist?("id_rsa.pub")
-end
+system("ssh-keygen -t rsa -b 2048 -f id_rsa -N ''") if !File.exist?("id_rsa")
+File.delete("id_rsa.pub") if File.exist?("id_rsa.pub")
 
 Vagrant.configure("2") do |config|
 
@@ -76,9 +74,7 @@ Vagrant.configure("2") do |config|
   env_ = { :cluster_name => cluster_name, :version => version, :journal => journal, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license, :k8s_version => k8s_version }
   config.vm.provision "shell", path: "all-common", env: env_
   config.vm.provision "shell", path: "#{platform}-common", env: env_
-  if training
-    config.vm.provision "shell", path: "training-common"
-  end
+  config.vm.provision "shell", path: "training-common" if training
 
   (1..clusters).each do |c|
     subnet = "192.168.#{100+c}"
@@ -126,18 +122,14 @@ Vagrant.configure("2") do |config|
             aws.private_ip_address = "192.168.#{100+c}.#{100+n}"
             aws.tags = { "px-cloud_owner" => ENV['AWS_owner_tag'], "Name" => "#{AWS_hostname_prefix}node-#{c}-#{n}" }
             aws.block_device_mapping.push({ :DeviceName => "/dev/sdb", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => disk_size })
-            if journal
-              aws.block_device_mapping.push({ :DeviceName => "/dev/sdc", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 3 })
-            end
+            aws.block_device_mapping.push({ :DeviceName => "/dev/sdc", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 3 }) if journal
           end
         elsif cloud == "gcp"
           node.vm.provider :google do |gcp|
             gcp.network_ip = "192.168.#{100+c}.#{100+n}"
             gcp.name = "node-#{c}-#{n}"
             gcp.additional_disks = [{ :disk_size => disk_size, :disk_name => "disk-#{c}-#{n}" }]
-            if journal
-              gcp.additional_disks.push({ :disk_size => 3, :disk_name => "journal-#{c}-#{n}" })
-            end
+            gcp.additional_disks.push({ :disk_size => 3, :disk_name => "journal-#{c}-#{n}" }) if journal
           end
         end
         node.vm.provision "shell", path: "#{platform}-node", env: env
