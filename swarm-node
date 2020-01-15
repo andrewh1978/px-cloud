@@ -1,7 +1,4 @@
-( yum install -y docker
-systemctl start docker
-systemctl enable docker
-[ "$version" ] || version=$(curl -fsSL "https://install.portworx.com/?type=dock&stork=false" | awk -F: '/image: / {print $3}')
+( [ "$version" ] || version=$(curl -fsSL "https://install.portworx.com/?type=dock&stork=false" | awk -F: '/image: / {print $3}')
 while : ; do
   token=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no $hostname_master docker swarm join-token worker -q)
   [ $? -eq 0 ] && break

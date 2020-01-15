@@ -1,10 +1,5 @@
 ( [ "$version" ] || version=$(curl -fsSL "https://install.portworx.com/?type=dock&stork=false" | awk -F: '/image: / {print $3}')
-curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-yum install -y docker nodejs
-systemctl enable docker
-systemctl start docker
 docker run --name rs -d -v /rancher/mysql:/var/lib/mysql --restart=unless-stopped -p 8080:8080 rancher/server
-npm install -g json
 curl -sSL https://github.com/rancher/cli/releases/download/v2.2.0/rancher-linux-amd64-v2.2.0.tar.gz | tar xzf - --strip-components=2 -C /usr/bin
 docker run --name etcd -d -v /etcd:/etcd-data -p 2379:2379 -p 2380:2380 quay.io/coreos/etcd:latest /usr/local/bin/etcd --advertise-client-urls http://$ip_master:2379 --listen-client-urls http://0.0.0.0:2379 --listen-peer-urls http://0.0.0.0:2380 --data-dir=/etcd-data --initial-advertise-peer-urls http://$ip_master:2380 --initial-cluster node1=http://$ip_master:2380 --name node1
 while : ; do

@@ -1,9 +1,4 @@
-( curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-yum install -y docker nodejs
-systemctl enable docker
-systemctl start docker
-npm install -g json
-while : ; do
+( while : ; do
   env_id=$(curl http://master-$c:8080/v2-beta/project?name=Default | json data[0].id)
   [ $env_id ] && break
   sleep 5

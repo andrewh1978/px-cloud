@@ -1,0 +1,5 @@
+curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+yum install -y docker nodejs
+systemctl enable docker
+systemctl start docker
+npm install -g json

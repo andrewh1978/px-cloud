@@ -77,19 +77,7 @@ Vagrant.configure("2") do |config|
   env_ = { :cluster_name => cluster_name, :version => version, :journal => journal, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license, :k8s_version => k8s_version }
 
   config.vm.provision "shell", path: "all-common", env: env_
-
-  if platform == "k8s"
-    config.vm.provision "shell", path: "k8s-common"
-
-  elsif platform == "nomad"
-    config.vm.provision "shell", path: "nomad-common"
-
-  elsif platform == "openshift"
-    config.vm.provision "shell", path: "openshift-common"
-
-  elsif platform == "dcos"
-    config.vm.provision "shell", path: "dcos-common", env: env_
-  end
+  config.vm.provision "shell", path: "#{platform}-common"
 
   if training
     config.vm.provision "shell", path: "training-common"
