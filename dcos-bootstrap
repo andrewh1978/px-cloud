@@ -25,7 +25,7 @@ cluster_name: dcos_test
 exhibitor_storage_backend: static
 master_discovery: static
 master_list:
-- $ip_master
+- 192.168.$[100+$c].90
 resolvers:
 - 8.8.8.8
 - 8.8.4.4

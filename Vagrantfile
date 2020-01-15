@@ -56,7 +56,6 @@ Vagrant.configure("2") do |config|
       override.ssh.username = "centos"
       override.ssh.private_key_path = AWS_sshkey_path
     end
-
   elsif cloud == "gcp"
     config.vm.box = "google/gce"
     config.vm.provider :google do |gcp, override|
@@ -75,19 +74,16 @@ Vagrant.configure("2") do |config|
   end
 
   env_ = { :cluster_name => cluster_name, :version => version, :journal => journal, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license, :k8s_version => k8s_version }
-
   config.vm.provision "shell", path: "all-common", env: env_
-  config.vm.provision "shell", path: "#{platform}-common"
-
+  config.vm.provision "shell", path: "#{platform}-common", env: env_
   if training
     config.vm.provision "shell", path: "training-common"
   end
 
   (1..clusters).each do |c|
     subnet = "192.168.#{100+c}"
-    ip_master = "192.168.#{100+c}.90"
     config.vm.hostname = "master-#{c}"
-    env = env_.merge({ :c => c, :ip_master => ip_master })
+    env = env_.merge({ :c => c })
 
     if platform == "dcos"
       config.vm.define "bootstrap-#{c}" do |bootstrap|
@@ -96,7 +92,6 @@ Vagrant.configure("2") do |config|
           bootstrap.vm.provider :aws do |aws|
             aws.private_ip_address = "192.168.#{100+c}.80"
             aws.tags = { "px-cloud_owner" => ENV['AWS_owner_tag'], "Name" => "#{AWS_hostname_prefix}bootstrap-#{c}" }
-            aws.instance_type = "t3.medium"
           end
         elsif cloud == "gcp"
           bootstrap.vm.provider :google do |gcp|
@@ -109,22 +104,18 @@ Vagrant.configure("2") do |config|
     end
 
     config.vm.define "master-#{c}" do |master|
-
       if cloud == "aws"
         master.vm.provider :aws do |aws|
-          aws.private_ip_address = ip_master
+          aws.private_ip_address = "#{subnet}.90"
           aws.tags = { "px-cloud_owner" => ENV['AWS_owner_tag'], "Name" => "#{AWS_hostname_prefix}master-#{c}" }
         end
-
       elsif cloud == "gcp"
         master.vm.provider :google do |gcp|
           gcp.name = "master-#{c}"
-          gcp.network_ip = ip_master
+          gcp.network_ip = "#{subnet}.90"
         end
       end
-
       master.vm.provision "shell", path: "#{platform}-master", env: env
-
     end
 
     (1..nodes).each do |n|
@@ -139,7 +130,6 @@ Vagrant.configure("2") do |config|
               aws.block_device_mapping.push({ :DeviceName => "/dev/sdc", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 3 })
             end
           end
-
         elsif cloud == "gcp"
           node.vm.provider :google do |gcp|
             gcp.network_ip = "192.168.#{100+c}.#{100+n}"
@@ -150,9 +140,7 @@ Vagrant.configure("2") do |config|
             end
           end
         end
-
         node.vm.provision "shell", path: "#{platform}-node", env: env
-
       end
     end
   end
