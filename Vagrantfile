@@ -6,17 +6,9 @@ cluster_name = "px-test-cluster"
 version = "2.3.2"
 journal = false
 training = false
-
-# Set cloud to one of "aws", "gcp"
-cloud = "aws"
-
-# Set platform to one of "k8s", "openshift", "swarm", "rancher", "nomad", "dcos"
-platform = "k8s"
-
-# Set K8s version
+cloud = "aws"			# Set cloud to "aws" or "gcp"
+platform = "k8s"		# Set platform to one of "k8s", "openshift", "swarm", "rancher", "nomad", "dcos"
 k8s_version="1.16.4"
-
-# Set DCOS license
 dcos_license="***"
 
 # Set some cloud-specific parameters
@@ -24,7 +16,6 @@ AWS_keypair_name = "CHANGEME"
 AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
 AWS_hostname_prefix = ""
-
 GCP_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 GCP_zone = "#{ENV['GCP_REGION']}-b"
 GCP_key = "./gcp-key.json"
@@ -36,10 +27,6 @@ system("ssh-keygen -t rsa -b 2048 -f id_rsa -N ''") if !File.exist?("id_rsa")
 File.delete("id_rsa.pub") if File.exist?("id_rsa.pub")
 
 Vagrant.configure("2") do |config|
-
-  config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.vm.provision "file", source: "id_rsa", destination: "/tmp/id_rsa"
-
   if cloud == "aws"
     config.vm.box = "dummy"
     config.vm.provider :aws do |aws, override|
@@ -72,13 +59,14 @@ Vagrant.configure("2") do |config|
   end
 
   env_ = { :cluster_name => cluster_name, :version => version, :journal => journal, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license, :k8s_version => k8s_version }
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.provision "file", source: "id_rsa", destination: "/tmp/id_rsa"
   config.vm.provision "shell", path: "all-common", env: env_
   config.vm.provision "shell", path: "#{platform}-common", env: env_
   config.vm.provision "shell", path: "training-common" if training
 
   (1..clusters).each do |c|
     subnet = "192.168.#{100+c}"
-    config.vm.hostname = "master-#{c}"
     env = env_.merge({ :c => c })
 
     if platform == "dcos"
@@ -100,6 +88,7 @@ Vagrant.configure("2") do |config|
     end
 
     config.vm.define "master-#{c}" do |master|
+      master.vm.hostname = "master-#{c}"
       if cloud == "aws"
         master.vm.provider :aws do |aws|
           aws.private_ip_address = "#{subnet}.90"
