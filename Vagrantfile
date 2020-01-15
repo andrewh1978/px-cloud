@@ -84,10 +84,10 @@ Vagrant.configure("2") do |config|
   end
 
   (1..clusters).each do |c|
-    hostname_master = "master-#{c}"
+    subnet = "192.168.#{100+c}"
     ip_master = "192.168.#{100+c}.90"
-    config.vm.hostname = hostname_master
-    env = env_.merge({ :c => c, :ip_master => ip_master, :hostname_master => hostname_master })
+    config.vm.hostname = "master-#{c}"
+    env = env_.merge({ :c => c, :ip_master => ip_master })
 
     if platform == "dcos"
       config.vm.define "bootstrap-#{c}" do |bootstrap|
@@ -108,7 +108,7 @@ Vagrant.configure("2") do |config|
       end
     end
 
-    config.vm.define hostname_master do |master|
+    config.vm.define "master-#{c}" do |master|
 
       if cloud == "aws"
         master.vm.provider :aws do |aws|
@@ -118,7 +118,7 @@ Vagrant.configure("2") do |config|
 
       elsif cloud == "gcp"
         master.vm.provider :google do |gcp|
-          gcp.name = hostname_master
+          gcp.name = "master-#{c}"
           gcp.network_ip = ip_master
         end
       end

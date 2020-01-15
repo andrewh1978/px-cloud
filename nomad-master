@@ -72,7 +72,7 @@ SyslogIdentifier=consul
 [Install]
 WantedBy=multi-user.target
 EOF
-echo "export NOMAD_ADDR=http://$hostname_master:4646" >>/root/.bashrc
+echo "export NOMAD_ADDR=http://master-$c:4646" >>/root/.bashrc
 systemctl enable consul nomad
 systemctl start consul nomad
 echo End) >&/var/log/vagrant.bootstrap &

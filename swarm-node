@@ -1,15 +1,15 @@
 ( [ "$version" ] || version=$(curl -fsSL "https://install.portworx.com/?type=dock&stork=false" | awk -F: '/image: / {print $3}')
 while : ; do
-  token=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no $hostname_master docker swarm join-token worker -q)
+  token=$(ssh -oConnectTimeout=1 -oStrictHostKeyChecking=no master-$c docker swarm join-token worker -q)
   [ $? -eq 0 ] && break
   sleep 5
 done
-docker swarm join --token $token $hostname_master:2377
+docker swarm join --token $token master-$c:2377
 docker run --entrypoint /runc-entry-point.sh --rm -i --privileged=true -v /opt/pwx:/opt/pwx -v /etc/pwx:/etc/pwx portworx/px-enterprise:$version
 if [ $journal = true ]; then
   journal_args="-j /dev/$(lsblk | grep 3G | tail -f | cut -f 1 -d ' ')"
 fi
-/opt/pwx/bin/px-runc install -c $cluster_name -k etcd://$hostname_master:2379 -a -x swarm $journal_args
+/opt/pwx/bin/px-runc install -c $cluster_name -k etcd://master-$c:2379 -a -x swarm $journal_args
 systemctl daemon-reload
 systemctl enable portworx
 systemctl start portworx
