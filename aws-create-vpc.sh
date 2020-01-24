@@ -18,9 +18,9 @@ aws --region=$AWS_region ec2 authorize-security-group-ingress --group-id $AWS_sg
 aws --region=$AWS_region ec2 authorize-security-group-ingress --group-id $AWS_sg --protocol tcp --port 8080 --cidr 0.0.0.0/0 &
 aws --region=$AWS_region ec2 authorize-security-group-ingress --group-id $AWS_sg --protocol tcp --port 30000-32767 --cidr 0.0.0.0/0 &
 aws --region=$AWS_region ec2 authorize-security-group-ingress --group-id $AWS_sg --protocol all --cidr 192.168.0.0/16 &
-wait
-
+aws --region=$AWS_region ec2 create-tags --resources $AWS_vpc $AWS_subnet $AWS_gw $AWS_routetable $AWS_sg --tags Key=px-cloud_owner,Value=$AWS_owner_tag &
 AWS_ami=$(aws --region=$AWS_region --output text ec2 describe-images --owners 679593333241 --filters Name=name,Values='CentOS Linux 7 x86_64 HVM EBS*' Name=architecture,Values=x86_64 Name=root-device-type,Values=ebs --query 'sort_by(Images, &Name)[-1].ImageId')
+wait
 
 cat <<EOF >aws-env.sh
 AWS_vpc=$AWS_vpc
@@ -33,5 +33,3 @@ AWS_region=$AWS_region
 AWS_owner_tag=$AWS_owner_tag
 export \$(set | grep ^AWS | cut -f 1 -d = )
 EOF
-
-aws --region=$AWS_region ec2 create-tags --resources $AWS_vpc $AWS_subnet $AWS_gw $AWS_routetable $AWS_sg --tags Key=px-cloud_owner,Value=$AWS_owner_tag
