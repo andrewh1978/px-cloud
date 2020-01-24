@@ -37,18 +37,11 @@ vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.
 
 5. Configure cloud-specific environment and project/VPC:
  * AWS: Edit aws-create-vpc.sh and change AWS_region as required (you need to ensure this matches the region set in `$HOME/.aws/config` until https://github.com/mitchellh/vagrant-aws/pull/564 is merged). AWS_owner_tag will add an owner tag to all of the AWS objects.
- * GCP: Edit gcp-create-project.sh and change GCP_PROJECT and GCP_REGION as required. GCP_owner_tag will add an owner tag to all of the GCP objects.
+ * GCP: Edit gcp-create-project.sh and change GCP_REGION as required. GCP_owner_tag will add an owner tag to all of the GCP objects.
 
 6. Create cloud-specific VPC/project:
  * AWS: `sh aws-create-vpc.sh`
  * GCP: `sh gcp-create-project.sh`
-
-Notes for GCP:
- * Billing needs to be enabled:
-```
-gcloud alpha billing projects link $PROJECT --billing-account $(gcloud alpha billing accounts list | tail -1 | cut -f 1 -d " ")
-```
- * Create JSON service account key: On GCP console, select the Project, click APIs and Services, Credentials, Create Credentials, Service account key, Create. Save the file.
 
 7. Edit `Vagrantfile`.
  * `clusters`: number of clusters
@@ -75,7 +68,6 @@ There are also some cloud-specific variables below this section that may need to
  * `AWS_sshkey_path`: the private SSH key associated with the AWS keypair
  * `AWS_type`: t3.large is the default, t3.medium also works
  * `AWS_hostname_prefix`: set prefix for hostnames on AWS
- * `GCP_key`: path to the service account key saved above
 
 8. Source the cloud-specific environment:
  * AWS: `. aws-env.sh`

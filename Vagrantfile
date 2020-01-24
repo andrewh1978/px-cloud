@@ -18,11 +18,11 @@ AWS_type = "t3.large"
 AWS_hostname_prefix = ""
 GCP_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 GCP_zone = "#{ENV['GCP_REGION']}-b"
-GCP_key = "./gcp-key.json"
 GCP_type = "n1-standard-2"
 GCP_disk_type = "pd-standard"
 
 # Do not edit below this line
+require "base64"
 system("ssh-keygen -t rsa -b 2048 -f id_rsa -N ''") if !File.exist?("id_rsa")
 File.delete("id_rsa.pub") if File.exist?("id_rsa.pub")
 
@@ -44,9 +44,10 @@ Vagrant.configure("2") do |config|
   elsif cloud == "gcp"
     config.vm.box = "google/gce"
     config.vm.provider :google do |gcp, override|
+      File.open("gcp-key.json", "w") do |line| line.puts(Base64.decode64(ENV['GCP_key'])) end
       gcp.google_project_id = ENV['GCP_PROJECT']
       gcp.zone = GCP_zone
-      gcp.google_json_key_location = GCP_key
+      gcp.google_json_key_location = "gcp-key.json";
       gcp.image_family = "centos-7"
       gcp.machine_type = GCP_type
       gcp.disk_size = 15
