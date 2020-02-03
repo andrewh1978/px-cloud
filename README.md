@@ -36,8 +36,13 @@ vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.
 4. Clone this repo and cd to it.
 
 5. Configure cloud-specific environment and project/VPC:
- * AWS: Edit aws-create-vpc.sh and change AWS_region as required (you need to ensure this matches the region set in `$HOME/.aws/config` until https://github.com/mitchellh/vagrant-aws/pull/564 is merged). AWS_owner_tag will add an owner tag to all of the AWS objects.
- * GCP: Edit gcp-create-project.sh and change GCP_REGION as required. GCP_owner_tag will add an owner tag to all of the GCP objects.
+ * AWS: Edit aws-create-vpc.sh and set the variables:
+   * AWS_region (you need to ensure this matches the region set in `$HOME/.aws/config` until https://github.com/mitchellh/vagrant-aws/pull/564 is merged)
+   * AWS_owner_tag - tag all of the created AWS objects so the owner can be identified
+   * AWS_keypair - name of keypair to be created
+ * GCP: Edit gcp-create-project.sh and set the variables:
+   * GCP_REGION
+   * GCP_owner_tag - tags all of the GCP objects so the owner can be identified
 
 6. Create cloud-specific VPC/project:
  * AWS: `sh aws-create-vpc.sh`
@@ -64,8 +69,6 @@ vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.
  * `dcos_license`: DC/OS license hash
 
 There are also some cloud-specific variables below this section that may need to be modified. They all begin with `AWS_` and `GCP_`.
- * `AWS_keypair_name`: change to your keypair name
- * `AWS_sshkey_path`: the private SSH key associated with the AWS keypair
  * `AWS_type`: t3.large is the default, t3.medium also works
  * `AWS_hostname_prefix`: set prefix for hostnames on AWS
 
@@ -103,5 +106,5 @@ master-3 34.245.11.144 ec2-34-245-11-144.eu-west-1.compute.amazonaws.com
 
 If you need a list of VM IDs for whitelisting, use:
 ```
-aws ec2 describe-instances --filters "Name=vpc-id,Values=$vpc" --query 'Reservations[*].Instances[*].[InstanceId]' --output text
+aws ec2 describe-instances --filters "Name=vpc-id,Values=$AWS_vpc" --query 'Reservations[*].Instances[*].[InstanceId]' --output text
 ```

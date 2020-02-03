@@ -1,10 +1,16 @@
 # Set the AWS region
 AWS_region=eu-west-1
 
+# Set the keypair name to be created
+AWS_keypair=CHANGEME
+
 # Set the px-cloud_owner tag
 AWS_owner_tag=CHANGEME
 
 # Do not change below this line
+aws --region=$AWS_region ec2 describe-key-pairs --key-name $AWS_keypair >&/dev/null
+[ $? -eq 0 ] && echo "Error: keypair already exists" && exit 1
+aws --region=$AWS_region ec2 create-key-pair --key-name $AWS_keypair --query KeyMaterial --output text >id_rsa.aws && chmod 600 id_rsa.aws
 AWS_vpc=$(aws --region=$AWS_region --output text ec2 create-vpc --cidr-block 192.168.0.0/16 --query Vpc.VpcId)
 AWS_subnet=$(aws --region=$AWS_region --output text ec2 create-subnet --vpc-id $AWS_vpc --cidr-block 192.168.0.0/16 --query Subnet.SubnetId)
 AWS_gw=$(aws --region=$AWS_region --output text ec2 create-internet-gateway --query InternetGateway.InternetGatewayId)
@@ -31,5 +37,6 @@ AWS_sg=$AWS_sg
 AWS_ami=$AWS_ami
 AWS_region=$AWS_region
 AWS_owner_tag=$AWS_owner_tag
+AWS_keypair=$AWS_keypair
 export \$(set | grep ^AWS | cut -f 1 -d = )
 EOF

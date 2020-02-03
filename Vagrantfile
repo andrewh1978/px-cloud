@@ -12,26 +12,19 @@ k8s_version="1.16.4"
 dcos_license="***"
 
 # Set some cloud-specific parameters
-AWS_keypair_name = "CHANGEME"
-AWS_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 AWS_type = "t3.large"
 AWS_hostname_prefix = ""
-GCP_sshkey_path = "#{ENV['HOME']}/.ssh/id_rsa"
 GCP_zone = "#{ENV['GCP_REGION']}-b"
 GCP_type = "n1-standard-2"
 GCP_disk_type = "pd-standard"
 
 # Do not edit below this line
-require "base64"
-system("ssh-keygen -t rsa -b 2048 -f id_rsa -N ''") if !File.exist?("id_rsa")
-File.delete("id_rsa.pub") if File.exist?("id_rsa.pub")
-
 Vagrant.configure("2") do |config|
   if cloud == "aws"
     config.vm.box = "dummy"
     config.vm.provider :aws do |aws, override|
       aws.security_groups = ENV['AWS_sg']
-      aws.keypair_name = AWS_keypair_name
+      aws.keypair_name = ENV['AWS_keypair']
       aws.region = ENV['AWS_region']
       aws.instance_type = AWS_type
       aws.ami = ENV['AWS_ami']
@@ -39,7 +32,7 @@ Vagrant.configure("2") do |config|
       aws.associate_public_ip = true
       aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
       override.ssh.username = "centos"
-      override.ssh.private_key_path = AWS_sshkey_path
+      override.ssh.private_key_path = "id_rsa.aws"
     end
   elsif cloud == "gcp"
     config.vm.box = "google/gce"
@@ -55,13 +48,13 @@ Vagrant.configure("2") do |config|
       gcp.subnetwork = "px-subnet"
       gcp.metadata = { "px-cloud_owner" => ENV['GCP_owner_tag'] }
       override.ssh.username = ENV['USER']
-      override.ssh.private_key_path = GCP_sshkey_path
+      override.ssh.private_key_path = "id_rsa.gcp"
     end
   end
 
   env_ = { :cluster_name => cluster_name, :version => version, :journal => journal, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license, :k8s_version => k8s_version }
   config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.vm.provision "file", source: "id_rsa", destination: "/tmp/id_rsa"
+  config.vm.provision "file", source: "id_rsa.#{cloud}", destination: "/tmp/id_rsa"
   config.vm.provision "shell", path: "all-common", env: env_
   config.vm.provision "shell", path: "#{platform}-common", env: env_
   config.vm.provision "shell", path: "training-common" if training
