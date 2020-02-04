@@ -45,8 +45,8 @@ vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.
    * GCP_owner_tag - tags all of the GCP objects so the owner can be identified
 
 6. Create cloud-specific VPC/project:
- * AWS: `sh aws-create-vpc.sh`
- * GCP: `sh gcp-create-project.sh`
+ * AWS: `bash aws-create-vpc.sh`
+ * GCP: `bash gcp-create-project.sh`
 
 7. Edit `Vagrantfile`.
  * `clusters`: number of clusters

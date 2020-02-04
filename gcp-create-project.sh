@@ -15,13 +15,7 @@ gcloud compute firewall-rules create allow-internal --allow=tcp,udp,icmp --sourc
 gcloud compute firewall-rules create allow-external --allow=tcp:22,tcp:443,tcp:6443 --network px-net --project $GCP_PROJECT &
 gcloud compute project-info add-metadata --metadata "ssh-keys=$USER:$(cat id_rsa.gcp.pub)" --project $GCP_PROJECT &
 service_account=$(gcloud iam service-accounts list --project $GCP_PROJECT --format 'flattened(email)' | tail -1 | cut -f 2 -d " ")
-GCP_key=$(gcloud iam service-accounts keys create /dev/stdout --iam-account $service_account | base64)
+GCP_key="$(gcloud iam service-accounts keys create /dev/stdout --iam-account $service_account)"
 wait
 
-cat <<EOF >gcp-env.sh
-GCP_PROJECT=$GCP_PROJECT
-GCP_REGION=$GCP_REGION
-GCP_owner_tag=$GCP_owner_tag
-GCP_key=$GCP_key
-export \$(set | grep ^GCP | cut -f 1 -d = )
-EOF
+set | grep ^GCP | sed 's/^/export /' >gcp-env.sh
