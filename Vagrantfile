@@ -22,7 +22,7 @@ GCP_disk_type = "pd-standard"
 Vagrant.configure("2") do |config|
   if cloud == "aws"
     config.vm.box = "dummy"
-    config.vm.provider :aws do |aws, override|
+    config.vm.provider :aws do |aws|
       aws.security_groups = ENV['AWS_sg']
       aws.keypair_name = ENV['AWS_keypair']
       aws.region = ENV['AWS_region']
@@ -31,12 +31,10 @@ Vagrant.configure("2") do |config|
       aws.subnet_id = ENV['AWS_subnet']
       aws.associate_public_ip = true
       aws.block_device_mapping = [{ :DeviceName => "/dev/sda1", "Ebs.DeleteOnTermination" => true, "Ebs.VolumeSize" => 15 }]
-      override.ssh.username = "centos"
-      override.ssh.private_key_path = "id_rsa.aws"
     end
   elsif cloud == "gcp"
     config.vm.box = "google/gce"
-    config.vm.provider :google do |gcp, override|
+    config.vm.provider :google do |gcp|
       File.open("gcp-key.json", "w") do |line| line.puts(Base64.decode64(ENV['GCP_key'])) end
       gcp.google_project_id = ENV['GCP_PROJECT']
       gcp.zone = GCP_zone
@@ -47,12 +45,12 @@ Vagrant.configure("2") do |config|
       gcp.network = "px-net"
       gcp.subnetwork = "px-subnet"
       gcp.metadata = { "px-cloud_owner" => ENV['GCP_owner_tag'] }
-      override.ssh.username = ENV['USER']
-      override.ssh.private_key_path = "id_rsa.gcp"
     end
   end
 
   env_ = { :cluster_name => cluster_name, :version => version, :journal => journal, :training => training, :nodes => nodes, :clusters => clusters, :dcos_license => dcos_license, :k8s_version => k8s_version }
+  config.ssh.username = "centos"
+  config.ssh.private_key_path = "id_rsa.#{cloud}"
   config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.provision "file", source: "id_rsa.#{cloud}", destination: "/tmp/id_rsa"
   config.vm.provision "shell", path: "all-common", env: env_
