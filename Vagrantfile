@@ -3,12 +3,12 @@ clusters = 2
 nodes = 3
 disk_size = 20
 cluster_name = "px-test-cluster"
-version = "2.3.2"
+version = "2.3.4"
 journal = false
 training = false
 cloud = "aws"			# Set cloud to "aws" or "gcp"
 platform = "k8s"		# Set platform to one of "k8s", "openshift", "swarm", "rancher", "nomad", "dcos"
-k8s_version="1.16.4"
+k8s_version="1.17.0"
 dcos_license="***"
 
 # Set some cloud-specific parameters
