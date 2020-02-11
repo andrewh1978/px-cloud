@@ -6,5 +6,5 @@ aws ec2 --region=$AWS_region detach-internet-gateway --internet-gateway-id $AWS_
 aws ec2 --region=$AWS_region delete-internet-gateway --internet-gateway-id $AWS_gw &&
 aws ec2 --region=$AWS_region delete-route-table --route-table-id $AWS_routetable &&
 aws ec2 --region=$AWS_region delete-vpc --vpc-id $AWS_vpc &&
-aws ec2 --region=$AWS_region delete-key-pair --key-name $AWS_keypair
+aws ec2 --region=$AWS_region delete-key-pair --key-name $AWS_keypair &&
 rm -f aws-env.sh id_rsa.aws
